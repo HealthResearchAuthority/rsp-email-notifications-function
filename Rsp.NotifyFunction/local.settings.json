@@ -1,0 +1,11 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+        "GovNotifyAPIKey": "GOV_NOTIFY_UK_API_KEY"
+    },
+    "ConnectionStrings": {
+        "emailNotificationsConnection": "Server=(localdb)\\mssqllocaldb;Database=RtsServiceNEW;Trusted_Connection=True;MultipleActiveResultSets=true;Connection Timeout=120"
+    }
+}
