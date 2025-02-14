@@ -1,4 +1,5 @@
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Rsp.NotifyFunction.Client;
@@ -20,6 +21,12 @@ var host = new HostBuilder()
                 options.Retry.MaxRetryAttempts = 3;
             });
         });
+    }).ConfigureAppConfiguration((context, config) =>
+    {
+        if (context.HostingEnvironment.IsDevelopment())
+        {
+            config.AddUserSecrets<Program>(); // Load User Secrets in Development
+        }
     })
     .Build();
 

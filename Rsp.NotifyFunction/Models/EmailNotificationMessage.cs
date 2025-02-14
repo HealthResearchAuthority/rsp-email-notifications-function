@@ -2,7 +2,7 @@
 {
     public class EmailNotificationMessage
     {
-        public int EventType { get; set; }
+        public string EventType { get; set; } = null!;
         public string EventName { get; set; } = null!;
         public string EmailTemplateId { get; set; } = null!;
 
