@@ -21,6 +21,8 @@ namespace Rsp.NotifyFunction.Services
                         emailNotificationMessage.EmailTemplateId,
                         emailNotificationMessage.Data);
 
+                //TODO potentially add a callback to check the status of the email sent i.e. sending, delivered etc
+
                 // check for response object to see if the email has been sent
                 if (response != null)
                 {
