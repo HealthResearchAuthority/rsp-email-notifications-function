@@ -1,8 +1,9 @@
+using System.Text;
+using Newtonsoft.Json;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Rsp.Logging.Extensions;
 using Rsp.NotifyFunction.Application.Contracts;
 using Rsp.NotifyFunction.Application.Models;
@@ -23,32 +24,24 @@ public class NotifyFunction
     // function that listens to the azure service bus queue for new messages and is triggered when a new message is added to the queue
     [Function(nameof(NotifyFunction))]
     public async Task Run(
-        [ServiceBusTrigger("queue.1", Connection = "emailNotificationsConnection")]
+        [ServiceBusTrigger("%QueueName%", Connection = "EmailNotificationsConnection")]
             ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
     {
         // parse incoming message into the EmailNotificationMessage object
         string messageBody = message.Body.ToString();
+        _logger.LogAsInformation($"Sending email... {messageBody}");
         EmailNotificationMessage? messageJson = JsonConvert.DeserializeObject<EmailNotificationMessage>(messageBody);
 
-        try
+        // send the email via the Gov UK notification service
+        var response = await _rspNotifyService.SendEmail(messageJson);
+        if (response != null)
         {
-            _logger.LogAsInformation("Sending email...\n");
-
-            // send the email via the Gov UK notification service
-            var sendEmail = _rspNotifyService.SendEmail(messageJson);
-
-            if (sendEmail)
-            {
-                // Complete the message which removes the message from the queue since it has been proccessed
-                await messageActions.CompleteMessageAsync(message);
-            }
-
-            _logger.LogAsInformation($"Email sucesfully sent.\n Message Notification Type: {messageJson.EventName},\n Message Email Address: {messageJson.RecipientAdress}, \nMessage Template Id: {messageJson.EmailTemplateId}");
+            // Complete the message which removes the message from the queue since it has been proccessed
+            await messageActions.CompleteMessageAsync(message);
         }
-        catch (Exception ex)
-        {
-            _logger.LogAsError("SERVER_ERROR", ex.Message, ex);
-        }
+        StringBuilder sb = new StringBuilder();
+        sb.AppendFormat("Email successfully sent. Message Notification Type: {0}, Message Email Address: {1}, Message Template Id: {2}.", messageJson.EventName, messageJson.RecipientAdress, messageJson.EmailTemplateId);
+        _logger.LogAsInformation(sb.ToString());
     }
 }

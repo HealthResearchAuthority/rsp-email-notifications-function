@@ -65,3 +65,6 @@ Local Settings
 
 Running Locally
 - config file
+Microsoft.Extensions.Configuration
+Microsoft.Azure.Functions.Extensions.DependencyInjection
+Microsoft.Azure.AppConfiguration.Functions.Worker
