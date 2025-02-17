@@ -4,6 +4,7 @@
 # Azure Functions localsettings file
 #local.settings.json
 src/Properties/serviceDependencies.local.json
+src/Properties/serviceDependencies.json
 src/local.settings.json
 # User-specific files
 *.suo
@@ -263,3 +264,4 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+.vshistory/
