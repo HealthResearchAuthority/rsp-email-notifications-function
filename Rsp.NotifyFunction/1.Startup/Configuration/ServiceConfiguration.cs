@@ -1,10 +1,10 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
+using Rsp.NotifyFunction.Application.Contracts;
 using Rsp.NotifyFunction.Client;
-using Rsp.NotifyFunction.Contracts;
 using Rsp.NotifyFunction.Services;
 
-namespace Rsp.NotifyFunction.Configuration
+namespace Rsp.NotifyFunction.Startup.Configuration
 {
     public static class ServicesConfiguration
     {
@@ -12,8 +12,8 @@ namespace Rsp.NotifyFunction.Configuration
         {
             services.AddApplicationInsightsTelemetryWorkerService();
             services.ConfigureFunctionsApplicationInsights();
-            services.AddTransient<IRSPNotifyService, RSPNotifyService>();
-            services.AddTransient<IRSPNotifyClient, RSPNotifyClient>();           
+            services.AddTransient<INotifyService, NotifyService>();
+            services.AddTransient<INotifyClient, NotifyClient>();
 
             return services;
         }

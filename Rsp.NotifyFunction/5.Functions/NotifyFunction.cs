@@ -1,29 +1,27 @@
-using System.Net.Mail;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Notify.Models;
 using Rsp.Logging.Extensions;
-using Rsp.NotifyFunction.Contracts;
-using Rsp.NotifyFunction.Models;
+using Rsp.NotifyFunction.Application.Contracts;
+using Rsp.NotifyFunction.Application.Models;
 
 namespace Rsp.NotifyFunction.Functions
 {
-    public class RSPNotifyFunction
+    public class NotifyFunction
     {
+        private readonly ILogger<NotifyFunction> _logger;
+        private readonly INotifyService _rspNotifyService;
 
-        private readonly ILogger<RSPNotifyFunction> _logger;
-        private readonly IRSPNotifyService _rspNotifyService;
-
-        public RSPNotifyFunction(IConfiguration configuration, ILogger<RSPNotifyFunction> logger, IRSPNotifyService rspNotifyService)
+        public NotifyFunction(IConfiguration configuration, ILogger<NotifyFunction> logger, INotifyService rspNotifyService)
         {
             _logger = logger;
             _rspNotifyService = rspNotifyService;
         }
+
         // function that listens to the azure service bus queue for new messages and is triggered when a new message is added to the queue
-        [Function(nameof(RSPNotifyFunction))]
+        [Function(nameof(NotifyFunction))]
         public async Task Run(
             [ServiceBusTrigger("queue.1", Connection = "emailNotificationsConnection")]
             ServiceBusReceivedMessage message,
@@ -44,7 +42,7 @@ namespace Rsp.NotifyFunction.Functions
                 {
                     // Complete the message which removes the message from the queue since it has been proccessed
                     await messageActions.CompleteMessageAsync(message);
-                }               
+                }
 
                 _logger.LogAsInformation($"Email sucesfully sent.\n Message Notification Type: {messageJson.EventName},\n Message Email Address: {messageJson.RecipientAdress}, \nMessage Template Id: {messageJson.EmailTemplateId}");
             }

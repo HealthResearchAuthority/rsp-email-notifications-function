@@ -1,11 +1,7 @@
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Rsp.NotifyFunction.Client;
-using Rsp.NotifyFunction.Configuration;
-using Rsp.NotifyFunction.Contracts;
-using Rsp.NotifyFunction.Services;
+using Rsp.NotifyFunction.Startup.Configuration;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()

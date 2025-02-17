@@ -3,7 +3,7 @@
     "Values": {
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-        "GovNotifyAPIKey": ""
+        "GovNotifyAPIKey": "dev_test_api_key-8e5a4faf-df2b-414c-9d77-ca947d11bcca-bbb33cf3-b000-42d6-9100-0f9268291a26"
     },
     "ConnectionStrings": {
         "emailNotificationsConnection": "Endpoint=sb://127.0.0.1;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;"

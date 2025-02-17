@@ -1,4 +1,4 @@
-﻿namespace Rsp.NotifyFunction.Models
+﻿namespace Rsp.NotifyFunction.Application.Models
 {
     public class EmailNotificationMessage
     {

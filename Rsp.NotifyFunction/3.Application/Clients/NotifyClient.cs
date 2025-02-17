@@ -1,16 +1,16 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Notify.Client;
-using Rsp.NotifyFunction.Contracts;
+using Rsp.NotifyFunction.Application.Contracts;
 
 namespace Rsp.NotifyFunction.Client
 {
-    public class RSPNotifyClient : IRSPNotifyClient
+    public class NotifyClient : INotifyClient
     {
         private readonly string? _apiKey;
-        private readonly ILogger<RSPNotifyClient> _logger;
+        private readonly ILogger<NotifyClient> _logger;
 
-        public RSPNotifyClient(IConfiguration configuration, ILogger<RSPNotifyClient> logger)
+        public NotifyClient(IConfiguration configuration, ILogger<NotifyClient> logger)
         {
             _logger = logger;
             _apiKey = configuration["GovNotifyAPIKey"];

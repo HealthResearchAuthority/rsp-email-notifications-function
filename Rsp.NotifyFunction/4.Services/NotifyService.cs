@@ -2,12 +2,12 @@
 using Notify.Client;
 using Notify.Models.Responses;
 using Rsp.Logging.Extensions;
-using Rsp.NotifyFunction.Contracts;
-using Rsp.NotifyFunction.Models;
+using Rsp.NotifyFunction.Application.Contracts;
+using Rsp.NotifyFunction.Application.Models;
 
 namespace Rsp.NotifyFunction.Services
 {
-    public class RSPNotifyService(IRSPNotifyClient notifyClient, ILogger<RSPNotifyService> logger) : IRSPNotifyService
+    public class NotifyService(INotifyClient notifyClient, ILogger<NotifyService> logger) : INotifyService
     {
         private readonly NotificationClient govUkNotifyClient = notifyClient.GetClient();
 
@@ -27,7 +27,7 @@ namespace Rsp.NotifyFunction.Services
                 if (response != null)
                 {
                     result = true;
-                }               
+                }
             }
             catch (Notify.Exceptions.NotifyClientException ex)
             {
