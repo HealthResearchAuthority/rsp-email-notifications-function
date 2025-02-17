@@ -1,19 +1,24 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
+using Notify.Client;
+using Notify.Interfaces;
+using Rsp.NotifyFunction.Application.Configuration;
 using Rsp.NotifyFunction.Application.Contracts;
-using Rsp.NotifyFunction.Client;
 using Rsp.NotifyFunction.Services;
 
 namespace Rsp.NotifyFunction.Startup.Configuration;
 
 public static class ServicesConfiguration
 {
-    public static IServiceCollection AddServices(this IServiceCollection services)
+    public static IServiceCollection AddServices(this IServiceCollection services, AppSettings appSettings)
     {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddTransient<INotifyService, NotifyService>();
-        services.AddTransient<INotifyClient, NotifyClient>();
+        services.AddTransient<IAsyncNotificationClient, NotificationClient>(sp =>
+        {
+            return new NotificationClient(appSettings.GovNotifyApiKey);
+        });
 
         return services;
     }
