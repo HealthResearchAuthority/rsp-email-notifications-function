@@ -1,9 +1,8 @@
 ﻿using Notify.Client;
 
-namespace Rsp.NotifyFunction.Application.Contracts
+namespace Rsp.NotifyFunction.Application.Contracts;
+
+public interface INotifyClient
 {
-    public interface INotifyClient
-    {
-        NotificationClient GetClient();
-    }
+    NotificationClient GetClient();
 }

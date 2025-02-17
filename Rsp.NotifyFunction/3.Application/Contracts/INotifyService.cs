@@ -1,9 +1,8 @@
 ﻿using Rsp.NotifyFunction.Application.Models;
 
-namespace Rsp.NotifyFunction.Application.Contracts
+namespace Rsp.NotifyFunction.Application.Contracts;
+
+public interface INotifyService
 {
-    public interface INotifyService
-    {
-        bool SendEmail(EmailNotificationMessage emailNotificationMessage);
-    }
+    bool SendEmail(EmailNotificationMessage emailNotificationMessage);
 }
