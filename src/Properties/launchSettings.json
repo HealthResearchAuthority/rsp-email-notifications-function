@@ -3,7 +3,9 @@
     "rspnotifyfunction": {
       "commandName": "Project",
       "commandLineArgs": "--port 7220",
-      "launchBrowser": false
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
     }
   }
 }
