@@ -10,8 +10,8 @@ For detailed instructions on how to contribute to this project, please read [CON
 
 ## Prerequisites
 
-- .NET 8 SDK
-- Visual Studio 2019 or later
+- .NET 9 SDK
+- Visual Studio 2022 or later
 
 ## Installation
 
@@ -53,18 +53,4 @@ dotnet run --project .\src\WebApi\Rsp.IrasService.WebApi\
 ```
 # License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details. Please see [HRA's Licensing Terms](https://dev.azure.com/FutureIRAS/Research%20Systems%20Programme/_wiki/wikis/RSP.wiki/84/Licensing-Information) for more details.
-
-dotnet add package Azure.Messaging.ServiceBu
-dotnet add package GovukNotify
-
-nuget install GovukNotify
-
-Local Settings
-"MyConnectionString": "Endpoint=sb://localhost:5672;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
-
-Running Locally
-- config file
-Microsoft.Extensions.Configuration
-Microsoft.Azure.Functions.Extensions.DependencyInjection
-Microsoft.Azure.AppConfiguration.Functions.Worker
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
