@@ -6,7 +6,7 @@ using Rsp.NotifyFunction.Application.Configuration;
 using Rsp.NotifyFunction.Application.Contracts;
 using Rsp.NotifyFunction.Services;
 
-namespace Rsp.NotifyFunction.Startup.Configuration;
+namespace Rsp.NotifyFunction.Startup.Configuration.Services;
 
 public static class ServicesConfiguration
 {
@@ -15,10 +15,8 @@ public static class ServicesConfiguration
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddTransient<INotifyService, NotifyService>();
-        services.AddTransient<IAsyncNotificationClient, NotificationClient>(sp =>
-        {
-            return new NotificationClient(appSettings.GovNotifyApiKey);
-        });
+
+        services.AddTransient<IAsyncNotificationClient, NotificationClient>(_ => new NotificationClient(appSettings.GovNotifyApiKey));
 
         return services;
     }
