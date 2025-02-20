@@ -14,5 +14,5 @@ public class EmailNotificationMessage
     /// <summary>
     /// Personalisation data for any placeholder fields in the email template
     /// </summary>
-    public Dictionary<string, dynamic> Data { get; set; } = new Dictionary<string, dynamic>();
+    public Dictionary<string, dynamic> Data { get; set; } = [];
 }
