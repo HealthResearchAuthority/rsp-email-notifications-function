@@ -10,6 +10,7 @@
   <ItemGroup>
     <Content Include="local.settings.json" />
   </ItemGroup>
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="GovukNotify" Version="7.2.0" />
@@ -35,8 +36,5 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Domain\" />
   </ItemGroup>
 </Project>
