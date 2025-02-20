@@ -1,70 +1,69 @@
 ## Introduction
 
-This is an ASP.NET Core WebAPI project using .NET 8. This project provides a robust and scalable framework for building Web APIs and Microservices
+This is an Azure Function project using .NET 9. The function listens to messages from Azure Service Bus and uses GovUK Notify to send email notifications.
+It is designed for asynchronous processing, ensuring reliable and scalable email delivery.
 
-# Contributing
+## Contributing
 
-For detailed instructions on how to contribute to this project, please read [CONTRIBUTING.md](./docs/CONTRIBUTING.md) 
+For detailed instructions on how to contribute to this project, please read [CONTRIBUTING.md](./docs/CONTRIBUTING.md).
 
-# Getting Started
+## Getting Started
 
-## Prerequisites
+### Prerequisites
 
-- .NET 8 SDK
-- Visual Studio 2019 or later
+- .NET 9 SDK
+- Visual Studio 2022 or later
+- [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-csharp#install-the-azure-functions-core-tools)
+- [Azure Service Emulator](https://github.com/Azure/azure-service-bus-emulator-installer) (See repository instructions for setup)
+- GovUK Notify account and API key
 
-## Installation
+### Installation
 
-1. Clone the repository
+1. Clone the repository:
 
-```
-git clone https://FutureIRAS@dev.azure.com/FutureIRAS/Research%20Systems%20Programme/_git/rsp-iras-service
-```
-2. Navigate to the project directory
+    ```
+    git clone https://github.com/HealthResearchAuthority/rsp-email-notifications-function.git
+    ```
 
-```
-cd rsp-iras-service
-```
+2. Navigate to the project directory:
 
-3. Restore the packages
-```
-dotnet restore
-```
-# Build and Test
+    ```
+    cd rsp-email-notifications-function
+    ```
 
-1. To build the project, navigate to the project directory and run the following command:
+3. Restore the packages:
 
-```
-dotnet build
-```
+    ```
+    dotnet restore
+    ```
 
-2. To run the tests, use the following command. Path to the test project is needed if you are running the tests from outside the test project directory.
+For setting up the Azure Service Emulator, refer to the repository documentation.
 
-```
- dotnet test .\tests\UnitTests\Rsp.IrasService.UnitTests\ --no-build
+## Build and Test
 
- dotnet test .\tests\IntegrationTests\Rsp.IrasService.IntegrationTests\ --no-build
-```
+1. To build the project, navigate to the project directory and run:
 
-3. To run the application, use the following command:
+    ```
+    dotnet build
+    ```
 
-```
-dotnet run --project .\src\WebApi\Rsp.IrasService.WebApi\
-```
-# License
+2. To run tests, use the following command:
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details. Please see [HRA's Licensing Terms](https://dev.azure.com/FutureIRAS/Research%20Systems%20Programme/_wiki/wikis/RSP.wiki/84/Licensing-Information) for more details.
+    ```
+    dotnet test .\tests\UnitTests\Rsp.NotifyFunction.UnitTests\ --no-build
+    ```
 
-dotnet add package Azure.Messaging.ServiceBu
-dotnet add package GovukNotify
+3. To run the function locally, use:
 
-nuget install GovukNotify
+    You need to have Azure Functions Core Tools installed before running the command below:
 
-Local Settings
-"MyConnectionString": "Endpoint=sb://localhost:5672;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
+    ```
+    func start
+    ```
 
-Running Locally
-- config file
-Microsoft.Extensions.Configuration
-Microsoft.Azure.Functions.Extensions.DependencyInjection
-Microsoft.Azure.AppConfiguration.Functions.Worker
+Ensure you have the required environment variables set up, including Service Bus connection strings and GovUK Notify API keys.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
