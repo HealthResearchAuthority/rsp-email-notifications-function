@@ -1,0 +1,14 @@
+parameters:
+  stageName: ''
+  envGroup: ''
+  condition: ''
+
+stages:
+  - stage: ${{ parameters.stageName }}
+    variables: 
+      - group: ${{ parameters.envGroup }}
+    condition: ${{ parameters.condition }}
+    jobs:
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
