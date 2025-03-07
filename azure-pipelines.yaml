@@ -93,13 +93,13 @@ stages:
           depends_on: 'Build'
           appSettings: $(appSettingsJson)
 
-  - template: stageTemplate.yaml
+  - template: templates/deployStage.yaml@library
     parameters:
       stageName: systemtest_auto
       envGroup: 'STAutoEnvironment'
       condition: eq('${{ parameters.env }}', 'systemtest_auto')
 
-  - template: stageTemplate.yaml
+  - template: templates/deployStage.yaml@library
     parameters:
       stageName: systemtest_manual
       envGroup: 'STManualEnvironment'
