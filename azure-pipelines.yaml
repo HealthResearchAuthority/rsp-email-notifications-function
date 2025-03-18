@@ -98,7 +98,7 @@ stages:
       - group: 'STAutoEnvironment'
     condition: eq('${{ parameters.env }}', 'systemtest_auto')
     jobs:
-      - template: ../jobs/deployFunction.yaml@library
+      - template: jobs/deployFunction.yaml@library
         parameters:
           appSettings: $(appSettingsJson)
           
@@ -107,7 +107,7 @@ stages:
       - group: 'STManualEnvironment'
     condition: eq('${{ parameters.env }}', 'systemtest_manual')
     jobs:
-      - template: ../jobs/deployFunction.yaml@library
+      - template: jobs/deployFunction.yaml@library
         parameters:
           appSettings: $(appSettingsJson)
 
