@@ -1,5 +1,5 @@
 name: $(Build.DefinitionName)_$(Build.SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
-# testing
+
 pool:
   vmImage: "Ubuntu-latest"
 
@@ -41,12 +41,32 @@ variables:
   - name: buildConfiguration
     value: "Release"
   - name: service_connection
-    ${{ if in(parameters.env, 'dev') }}:
+    ${{ if eq(parameters.env, 'dev') }}:
       value: "ARM Dev Connection New"
-    ${{ if in(parameters.env, 'systemtest_auto') }}:
+    ${{ if eq(parameters.env, 'systemtest_auto') }}:
       value: "ARM Automated Test Connection"  
-    ${{ if in(parameters.env, 'systemtest_manual') }}:
+    ${{ if eq(parameters.env, 'systemtest_manual') }}:
       value: "ARM Manual Test Connection"
+
+  - name: appSettingsJson
+    value: |
+      [
+        {
+          "name": "AppSettings__AzureAppConfiguration__Endpoint",
+          "value": "$(AppConfigurationEndpoint)",
+          "slotSetting": false
+        },
+        {
+          "name": "AppSettings__AzureAppConfiguration__IdentityClientID",
+          "value": "$(AppConfigurationClientID)",
+          "slotSetting": false
+        },
+        {
+          "name": "AppSettings__QueueName",
+          "value": "$(EmailNotificationQueueName)",
+          "slotSetting": false
+        }
+      ]
 
 resources:
   repositories:
@@ -59,7 +79,7 @@ resources:
 stages:
   - stage: dev
     variables: 
-    - group: 'DevelopmentEnvironment'
+      - group: 'DevelopmentEnvironment'
     condition: eq('${{ parameters.env }}', 'dev') 
     jobs:
       - template: jobs/build.yaml@library
@@ -68,51 +88,49 @@ stages:
           sonar_project_name: rsp-email-notifications-function
           run_sonarcloud_analysis: ${{ parameters.run_sonarcloud_analysis }}
           run_github_security_scan: false
-
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          depends_on: 'Build'
+          appSettings: $(appSettingsJson)
+          
   - stage: systemtest_auto
     variables: 
-    - group: 'STAutoEnvironment'
+      - group: 'STAutoEnvironment'
     condition: eq('${{ parameters.env }}', 'systemtest_auto')
     jobs:
-    - job:
-      steps:
-      - script: |
-          echo 'env: system test auto'
-
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
+          
   - stage: systemtest_manual
     variables: 
-    - group: 'STManualEnvironment'
-    condition: eq('${{ parameters.env }}', 'systemtest_manual') 
+      - group: 'STManualEnvironment'
+    condition: eq('${{ parameters.env }}', 'systemtest_manual')
     jobs:
-    - job:
-      steps:
-      - script: |
-          echo 'env: system test manual'
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
 
   - stage: system_integration_test
     jobs:
-    - job:
-      steps:
-      - script: |
-          echo 'env: system integration test'
+      - job: SystemIntegrationTest
+        steps:
+          - script: echo 'Running system integration tests...'
 
   - stage: uat
     jobs:
-    - job:
-      steps:
-      - script: |
-          echo 'env: uat'
+      - job: UATDeployment
+        steps:
+          - script: echo 'Deploying to UAT...'
 
   - stage: pre_prod
     jobs:
-    - job:
-      steps:
-      - script: |
-          echo 'env: pre prod'
+      - job: PreProdDeployment
+        steps:
+          - script: echo 'Deploying to Pre-Prod...'
 
   - stage: production
     jobs:
-    - job:
-      steps:
-      - script: |
-          echo 'env: production'
+      - job: ProductionDeployment
+        steps:
+          - script: echo 'Deploying to Production...'
