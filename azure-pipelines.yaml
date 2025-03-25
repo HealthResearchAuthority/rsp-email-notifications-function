@@ -124,9 +124,9 @@ stages:
             name: fetchPublicIP
 
           - bash: |
-              echo "Allowing IP: $(fetch_ip.fetchPublicIP.ipaddress)"
-              az functionapp config access-restriction add -g $(ResourceGroup) -n $(FunctionAppServiceName) --rule-name build_server --action Allow --ip-address $(fetch_ip.fetchPublicIP.ipaddress) --priority 250 --scm-site true
-              az storage account network-rule add -g myRg --account-name mystorageaccount --ip-address $(fetch_ip.fetchPublicIP.ipaddress)
+              echo "Allowing IP: $(fetchPublicIP.ipaddress)"
+              az functionapp config access-restriction add -g $(ResourceGroup) -n $(FunctionAppServiceName) --rule-name build_server --action Allow --ip-address $(fetchPublicIP.ipaddress) --priority 250 --scm-site true
+              az storage account network-rule add -g myRg --account-name mystorageaccount --ip-address $(fetchPublicIP.ipaddress)
 
       - template: jobs/deployFunction.yaml@library
         parameters:
@@ -148,9 +148,9 @@ stages:
             name: fetchPublicIP
 
           - bash: |
-              echo "Allowing IP: $(fetch_ip.fetchPublicIP.ipaddress)"
-              az functionapp config access-restriction add -g $(ResourceGroup) -n $(FunctionAppServiceName) --rule-name build_server --action Allow --ip-address $(fetch_ip.fetchPublicIP.ipaddress) --priority 250 --scm-site true
-              az storage account network-rule add -g myRg --account-name mystorageaccount --ip-address $(fetch_ip.fetchPublicIP.ipaddress)
+              echo "Allowing IP: $(fetchPublicIP.ipaddress)"
+              az functionapp config access-restriction add -g $(ResourceGroup) -n $(FunctionAppServiceName) --rule-name build_server --action Allow --ip-address $(fetchPublicIP.ipaddress) --priority 250 --scm-site true
+              az storage account network-rule add -g myRg --account-name mystorageaccount --ip-address $(fetchPublicIP.ipaddress)
 
       - template: jobs/deployFunction.yaml@library
         parameters:
