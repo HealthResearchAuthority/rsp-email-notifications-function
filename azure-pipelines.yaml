@@ -3,19 +3,6 @@ name: $(Build.DefinitionName)_$(Build.SourceBranchName)_$(date:yyyyMMdd)$(rev:.r
 pool:
   vmImage: "Ubuntu-latest"
 
-steps:
-  - bash: |
-      ipaddress=$(curl -s http://ipinfo.io/ip)
-      ipaddressipify=$(curl -s https://api.ipify.org)
-      echo "##vso[task.setvariable variable=ipaddress;isOutput=true;]$ipaddress"
-      echo "##vso[task.setvariable variable=ipaddressipify;isOutput=true;]$ipaddressipify"
-    name: fetchPublicIP
-
-  - bash: |
-      echo "Public IP from ipinfo: $(fetchPublicIP.ipaddress)"
-      echo "Public IP from ipify: $(fetchPublicIP.ipaddressipify)"
-    displayName: "Print Public IPs"
-
 trigger:
   - main
 
@@ -90,6 +77,24 @@ resources:
       ref: ${{ parameters.devops_library_branch }}
 
 stages:
+  - stage: fetch_public_ip
+    displayName: "Fetch and Print Public IP"
+    jobs:
+      - job: FetchIP
+        displayName: "Fetch Public IP Job"
+        steps:
+          - bash: |
+              ipaddress=$(curl -s http://ipinfo.io/ip)
+              ipaddressipify=$(curl -s https://api.ipify.org)
+              echo "##vso[task.setvariable variable=ipaddress;isOutput=true;]$ipaddress"
+              echo "##vso[task.setvariable variable=ipaddressipify;isOutput=true;]$ipaddressipify"
+            name: fetchPublicIP
+
+          - bash: |
+              echo "Public IP from ipinfo: $(fetchPublicIP.ipaddress)"
+              echo "Public IP from ipify: $(fetchPublicIP.ipaddressipify)"
+            displayName: "Print Public IPs"
+
   - stage: dev
     variables: 
       - group: 'DevelopmentEnvironment'
