@@ -86,6 +86,13 @@ stages:
         displayName: "Whitelist IP in Function App and Storage"
         steps:
           - script: |
+              echo "##vso[task.setvariable variable=AZURE_CLIENT_ID]$(AZURE_CLIENT_ID)"
+              echo "##vso[task.setvariable variable=AZURE_CLIENT_SECRET]$(AZURE_CLIENT_SECRET)"
+              echo "##vso[task.setvariable variable=AZURE_TENANT_ID]$(AZURE_TENANT_ID)"
+              echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION_ID]$(AZURE_SUBSCRIPTION_ID)"
+              displayName: 'Set Azure Variables'
+
+          - script: |
               az login --service-principal -u $(AZURE_CLIENT_ID) -p $(AZURE_CLIENT_SECRET) --tenant $(AZURE_TENANT_ID)
               az account set --subscription $(AZURE_SUBSCRIPTION_ID)
               displayName: 'Login to Azure CLI'
@@ -150,6 +157,13 @@ stages:
       - job: AllowNetworkAccess
         displayName: "Whitelist IP in Function App and Storage"
         steps:
+          - script: |
+              echo "##vso[task.setvariable variable=AZURE_CLIENT_ID]$(AZURE_CLIENT_ID)"
+              echo "##vso[task.setvariable variable=AZURE_CLIENT_SECRET]$(AZURE_CLIENT_SECRET)"
+              echo "##vso[task.setvariable variable=AZURE_TENANT_ID]$(AZURE_TENANT_ID)"
+              echo "##vso[task.setvariable variable=AZURE_SUBSCRIPTION_ID]$(AZURE_SUBSCRIPTION_ID)"
+              displayName: 'Set Azure Variables'
+
           - script: |
               az login --service-principal -u $(AZURE_CLIENT_ID) -p $(AZURE_CLIENT_SECRET) --tenant $(AZURE_TENANT_ID)
               az account set --subscription $(AZURE_SUBSCRIPTION_ID)
