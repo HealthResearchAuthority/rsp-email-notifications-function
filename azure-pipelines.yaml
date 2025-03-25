@@ -82,28 +82,6 @@ stages:
       - group: 'DevelopmentEnvironment'
     condition: eq('${{ parameters.env }}', 'dev') 
     jobs:
-      # - job: AllowNetworkAccess
-      #   displayName: "Whitelist IP in Function App and Storage"
-      #   steps:
-      #     - bash: |
-      #         az login --service-principal -u $(AZURE_CLIENT_ID) -p $(AZURE_CLIENT_SECRET) --tenant $(AZURE_TENANT_ID)
-      #         az account set --subscription $(AZURE_SUBSCRIPTION_ID)
-
-      #     - bash: |
-      #         ipaddress=$(curl -s http://ipinfo.io/ip)
-      #         ipaddressipify=$(curl -s https://api.ipify.org)
-      #         echo "##vso[task.setvariable variable=ipaddress;isOutput=true;]$ipaddress"
-      #         echo "##vso[task.setvariable variable=ipaddressipify;isOutput=true;]$ipaddressipify"
-      #       name: fetchPublicIP
-
-      #     - bash: |
-      #         echo "Allowing IP: $(fetchPublicIP.ipaddress)"
-      #         # az resource update --resource-group $(AZURE_RESOURCE_GROUP_NAME) --name $(AZURE_EMAIL_FUNCTION_NAME) --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-      #         az functionapp update --resource-group $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --set publicNetworkAccess=Enabled siteConfig.publicNetworkAccess=Enabled --query "{name:name, publicNetworkAccess:publicNetworkAccess, siteConfig_publicNetworkAccess:siteConfig.publicNetworkAccess}"
-      #         # az functionapp config access-restriction add -g $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --rule-name build_server --action Allow --ip-address $(fetchPublicIP.ipaddress) --priority 250 --scm-site true
-      #         # az functionapp config access-restriction add -g $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --rule-name build_server --action Allow --ip-address $(fetchPublicIP.ipaddress) --priority 250 --scm-site false
-      #         az storage account network-rule add -g $(AZURE_RESOURCE_GROUP_NAME) --account-name $(AZURE_STORAGE_ACCOUNT_NAME) --ip-address $(fetchPublicIP.ipaddress)
-
       - template: jobs/build.yaml@library
         parameters:
           sonar_project_key: HealthResearchAuthority_rsp-email-notifications-function
@@ -120,28 +98,6 @@ stages:
       - group: 'STAutoEnvironment'
     condition: eq('${{ parameters.env }}', 'systemtest_auto')
     jobs:
-      - job: AllowNetworkAccess
-        displayName: "Whitelist IP in Function App and Storage"
-        steps:
-          - bash: |
-              az login --service-principal -u $(AZURE_CLIENT_ID) -p $(AZURE_CLIENT_SECRET) --tenant $(AZURE_TENANT_ID)
-              az account set --subscription $(AZURE_SUBSCRIPTION_ID)
-
-          - bash: |
-              ipaddress=$(curl -s http://ipinfo.io/ip)
-              ipaddressipify=$(curl -s https://api.ipify.org)
-              echo "##vso[task.setvariable variable=ipaddress;isOutput=true;]$ipaddress"
-              echo "##vso[task.setvariable variable=ipaddressipify;isOutput=true;]$ipaddressipify"
-            name: fetchPublicIP
-
-          - bash: |
-              echo "Allowing IP: $(fetchPublicIP.ipaddress)"
-              az functionapp update --resource-group $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --set publicNetworkAccess=Enabled siteConfig.publicNetworkAccess=Enabled --query "{name:name, publicNetworkAccess:publicNetworkAccess, siteConfig_publicNetworkAccess:siteConfig.publicNetworkAccess}"
-              # az resource update --resource-group $(AZURE_RESOURCE_GROUP_NAME) --name $(AZURE_EMAIL_FUNCTION_NAME) --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-              # az functionapp config access-restriction add -g $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --rule-name build_server --action Allow --ip-address $(fetchPublicIP.ipaddress) --priority 250 --scm-site true
-              # az functionapp config access-restriction add -g $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --rule-name build_server --action Allow --ip-address $(fetchPublicIP.ipaddress) --priority 250 --scm-site false
-              az storage account network-rule add -g $(AZURE_RESOURCE_GROUP_NAME) --account-name $(AZURE_STORAGE_ACCOUNT_NAME) --ip-address $(fetchPublicIP.ipaddress)
-
       - template: jobs/deployFunction.yaml@library
         parameters:
           appSettings: $(appSettingsJson)
@@ -151,28 +107,6 @@ stages:
       - group: 'STManualEnvironment'
     condition: eq('${{ parameters.env }}', 'systemtest_manual')
     jobs:
-      - job: AllowNetworkAccess
-        displayName: "Whitelist IP in Function App and Storage"
-        steps:
-          - bash: |
-              az login --service-principal -u $(AZURE_CLIENT_ID) -p $(AZURE_CLIENT_SECRET) --tenant $(AZURE_TENANT_ID)
-              az account set --subscription $(AZURE_SUBSCRIPTION_ID)
-
-          - bash: |
-              ipaddress=$(curl -s http://ipinfo.io/ip)
-              ipaddressipify=$(curl -s https://api.ipify.org)
-              echo "##vso[task.setvariable variable=ipaddress;isOutput=true;]$ipaddress"
-              echo "##vso[task.setvariable variable=ipaddressipify;isOutput=true;]$ipaddressipify"
-            name: fetchPublicIP
-
-          - bash: |
-              echo "Allowing IP: $(fetchPublicIP.ipaddress)"
-              az functionapp update --resource-group $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --set publicNetworkAccess=Enabled siteConfig.publicNetworkAccess=Enabled --query "{name:name, publicNetworkAccess:publicNetworkAccess, siteConfig_publicNetworkAccess:siteConfig.publicNetworkAccess}"
-              # az resource update --resource-group $(AZURE_RESOURCE_GROUP_NAME) --name $(AZURE_EMAIL_FUNCTION_NAME) --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-              # az functionapp config access-restriction add -g $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --rule-name build_server --action Allow --ip-address $(fetchPublicIP.ipaddress) --priority 250 --scm-site true
-              # az functionapp config access-restriction add -g $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --rule-name build_server --action Allow --ip-address $(fetchPublicIP.ipaddress) --priority 250 --scm-site false
-              az storage account network-rule add -g $(AZURE_RESOURCE_GROUP_NAME) --account-name $(AZURE_STORAGE_ACCOUNT_NAME) --ip-address $(fetchPublicIP.ipaddress)
-
       - template: jobs/deployFunction.yaml@library
         parameters:
           appSettings: $(appSettingsJson)
