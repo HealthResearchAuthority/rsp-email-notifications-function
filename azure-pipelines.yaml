@@ -77,11 +77,11 @@ resources:
       ref: ${{ parameters.devops_library_branch }}
 
 stages:
-  - stage: fetch_public_ip
-    displayName: "Fetch and Print Public IP"
+  - stage: fetch_ip
+    displayName: "Fetch Public IP for Access Restrictions"
     jobs:
-      - job: FetchIP
-        displayName: "Fetch Public IP Job"
+      - job: fetchPublicIP
+        displayName: "Fetch Public IP"
         steps:
           - bash: |
               ipaddress=$(curl -s http://ipinfo.io/ip)
@@ -90,16 +90,20 @@ stages:
               echo "##vso[task.setvariable variable=ipaddressipify;isOutput=true;]$ipaddressipify"
             name: fetchPublicIP
 
-          - bash: |
-              echo "Public IP from ipinfo: $(fetchPublicIP.ipaddress)"
-              echo "Public IP from ipify: $(fetchPublicIP.ipaddressipify)"
-            displayName: "Print Public IPs"
-
   - stage: dev
+    dependsOn: fetch_ip
     variables: 
       - group: 'DevelopmentEnvironment'
     condition: eq('${{ parameters.env }}', 'dev') 
     jobs:
+      - job: AllowNetworkAccess
+        displayName: "Whitelist IP in Function App and Storage"
+        steps:
+          - bash: |
+              echo "Allowing IP: $(fetch_ip.fetchPublicIP.ipaddress)"
+              az functionapp config access-restriction add -g $(ResourceGroup) -n $(FunctionAppServiceName) --rule-name build_server --action Allow --ip-address $(fetch_ip.fetchPublicIP.ipaddress) --priority 250 --scm-site true
+              az storage account network-rule add -g myRg --account-name mystorageaccount --ip-address $(fetch_ip.fetchPublicIP.ipaddress)
+
       - template: jobs/build.yaml@library
         parameters:
           sonar_project_key: HealthResearchAuthority_rsp-email-notifications-function
@@ -112,19 +116,37 @@ stages:
           appSettings: $(appSettingsJson)
           
   - stage: systemtest_auto
+    dependsOn: fetch_ip
     variables: 
       - group: 'STAutoEnvironment'
     condition: eq('${{ parameters.env }}', 'systemtest_auto')
     jobs:
+      - job: AllowNetworkAccess
+        displayName: "Whitelist IP in Function App and Storage"
+        steps:
+          - bash: |
+              echo "Allowing IP: $(fetch_ip.fetchPublicIP.ipaddress)"
+              az functionapp config access-restriction add -g $(ResourceGroup) -n $(FunctionAppServiceName) --rule-name build_server --action Allow --ip-address $(fetch_ip.fetchPublicIP.ipaddress) --priority 250 --scm-site true
+              az storage account network-rule add -g myRg --account-name mystorageaccount --ip-address $(fetch_ip.fetchPublicIP.ipaddress)
+
       - template: jobs/deployFunction.yaml@library
         parameters:
           appSettings: $(appSettingsJson)
           
   - stage: systemtest_manual
+    dependsOn: fetch_ip
     variables: 
       - group: 'STManualEnvironment'
     condition: eq('${{ parameters.env }}', 'systemtest_manual')
     jobs:
+      - job: AllowNetworkAccess
+        displayName: "Whitelist IP in Function App and Storage"
+        steps:
+          - bash: |
+              echo "Allowing IP: $(fetch_ip.fetchPublicIP.ipaddress)"
+              az functionapp config access-restriction add -g $(ResourceGroup) -n $(FunctionAppServiceName) --rule-name build_server --action Allow --ip-address $(fetch_ip.fetchPublicIP.ipaddress) --priority 250 --scm-site true
+              az storage account network-rule add -g myRg --account-name mystorageaccount --ip-address $(fetch_ip.fetchPublicIP.ipaddress)
+
       - template: jobs/deployFunction.yaml@library
         parameters:
           appSettings: $(appSettingsJson)
