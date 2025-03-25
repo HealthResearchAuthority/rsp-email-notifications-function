@@ -98,7 +98,8 @@ stages:
 
           - bash: |
               echo "Allowing IP: $(fetchPublicIP.ipaddress)"
-              az resource update --resource-group $(AZURE_RESOURCE_GROUP_NAME) --name $(AZURE_EMAIL_FUNCTION_NAME) --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
+              # az resource update --resource-group $(AZURE_RESOURCE_GROUP_NAME) --name $(AZURE_EMAIL_FUNCTION_NAME) --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
+              az functionapp update --resource-group $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --set publicNetworkAccess=Enabled siteConfig.publicNetworkAccess=Enabled --query "{name:name, publicNetworkAccess:publicNetworkAccess, siteConfig_publicNetworkAccess:siteConfig.publicNetworkAccess}"
               # az functionapp config access-restriction add -g $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --rule-name build_server --action Allow --ip-address $(fetchPublicIP.ipaddress) --priority 250 --scm-site true
               # az functionapp config access-restriction add -g $(AZURE_RESOURCE_GROUP_NAME) -n $(AZURE_EMAIL_FUNCTION_NAME) --rule-name build_server --action Allow --ip-address $(fetchPublicIP.ipaddress) --priority 250 --scm-site false
               # az storage account network-rule add -g $(AZURE_RESOURCE_GROUP_NAME) --account-name $(AZURE_STORAGE_ACCOUNT_NAME) --ip-address $(fetchPublicIP.ipaddress)
