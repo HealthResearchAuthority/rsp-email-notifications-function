@@ -88,10 +88,11 @@ stages:
           sonar_project_name: rsp-email-notifications-function
           run_sonarcloud_analysis: ${{ parameters.run_sonarcloud_analysis }}
           run_github_security_scan: false
-      - template: jobs/deployFunction.yaml@library
-        parameters:
-          depends_on: 'Build'
-          appSettings: $(appSettingsJson)
+     
+      - ${{ if eq(parameters.skip_deployment, false) }}:
+         - template: jobs/deployFunction.yaml@library
+           parameters:
+              appSettings: $(appSettingsJson)
           
   - stage: systemtest_auto
     variables: 
