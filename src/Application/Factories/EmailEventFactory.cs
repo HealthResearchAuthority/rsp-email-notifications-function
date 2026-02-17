@@ -23,7 +23,8 @@ public class EmailEventFactory : IEmailRequestFactory
             envelope.Data.Deserialize<GenericEmailRequest>() with
             {
                 EventType = envelope.EventType,
-                EmailTemplateId = envelope.EmailTemplateId
+                EmailTemplateId = envelope.EmailTemplateId,
+                UserIds = envelope.UserIds
             },
 
             _ => null

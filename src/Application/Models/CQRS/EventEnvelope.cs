@@ -10,5 +10,6 @@ public sealed class EmailEnvelope
 {
     public string EmailTemplateId { get; set; } = null!;
     public string EventType { get; init; } = default!;
+    public IEnumerable<string> UserIds { get; set; } = [];
     public JsonElement Data { get; init; }
 }
