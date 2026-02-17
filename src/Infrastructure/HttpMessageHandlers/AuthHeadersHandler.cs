@@ -6,9 +6,9 @@ using Rsp.NotifyFunction.Functions;
 
 namespace Rsp.NotifyFunction.Infrastructure.HttpMessageHandlers;
 
-public class AuthHeadersHandler(TokenCredential credential, ILogger<NotifyFunctionManual> logger, AppSettings appSettings) : DelegatingHandler
+public class AuthHeadersHandler(TokenCredential credential, ILogger<EmailNotificationFunction> logger, AppSettings appSettings) : DelegatingHandler
 {
-    private readonly ILogger<NotifyFunctionManual> _logger = logger;
+    private readonly ILogger<EmailNotificationFunction> _logger = logger;
 
     /// <summary>Sends an HTTP request to the inner handler to send to the server as an asynchronous operation.</summary>
     /// <param name="request">The HTTP request message to send to the server.</param>

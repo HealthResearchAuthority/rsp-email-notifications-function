@@ -7,8 +7,16 @@ namespace Rsp.NotifyFunction.Application.Factories;
 
 public class EmailEventFactory : IEmailRequestFactory
 {
+    /// <summary>
+    /// Creates an email request object based on the event type in the envelope.
+    /// </summary>
+    /// <param name="envelope"></param>
+    /// <returns></returns>
     public IEmailRequest? Create(EmailEnvelope envelope)
     {
+        // based on the event type in the envelope,
+        // create the appropriate email request object and
+        // populate it with the data from the envelope
         return envelope.EventType switch
         {
             "GenericNotification" =>

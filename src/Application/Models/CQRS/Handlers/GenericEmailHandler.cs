@@ -11,15 +11,25 @@ public class GenericEmailHandler(
     IUserManagementServiceClient userManagementClient)
     : IRequestHandler<GenericEmailRequest>
 {
+    /// <summary>
+    /// Handles the generic email request by retrieving necessary data and sending an email notification.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task Handle(GenericEmailRequest request, CancellationToken cancellationToken)
     {
-        // here get the data we need for the email from the various services
         var userIds = request.UserIds;
 
+        // Retrieve user details for the provided user IDs using the user management service client
         var usersResponse = await userManagementClient.GetUsersById(userIds, pageIndex: 1, pageSize: 1000);
         if (usersResponse.IsSuccessStatusCode
             && usersResponse.Content != null)
         {
+            // For each user retrieved,
+            // create an email notification message and send it using the notify service
+            // Notify service does not provide programatic bulk sending capability,
+            // so we need to send individual messages for each recipient
             foreach (var user in usersResponse.Content.Users)
             {
                 var message = new EmailNotificationMessage
@@ -34,6 +44,7 @@ public class GenericEmailHandler(
                      }
                 };
 
+                // Send the email notification message using the notify service
                 var sendEmail = await notifyService.SendEmail(message);
             }
         }

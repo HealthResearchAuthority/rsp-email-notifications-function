@@ -10,13 +10,14 @@ using Rsp.NotifyFunction.Application.Models.CQRS;
 
 namespace Rsp.NotifyFunction.Functions;
 
-public class NotifyFunction(
-    ILogger<NotifyFunction> logger,
+public class EmailNotificationFunction(
+    ILogger<EmailNotificationFunction> logger,
     IEmailRequestFactory eventFactory,
     IMediator mediator)
 {
-    // function that listens to the azure service bus queue for new messages and is triggered when a new message is added to the queue
-    [Function(nameof(NotifyFunction))]
+    // Function that listens to the azure service bus queue for new messages
+    // and is triggered when a new message is added to the queue
+    [Function(nameof(EmailNotificationFunction))]
     public async Task Notify
     (
         [ServiceBusTrigger("%QueueName%", Connection = "EmailNotificationsConnection")]
@@ -26,7 +27,6 @@ public class NotifyFunction(
     {
         // convert the received message into json string
         var notificationMessage = message.Body.ToString();
-
         var envelope = JsonSerializer.Deserialize<EmailEnvelope>(notificationMessage);
 
         if (envelope == null)
@@ -35,6 +35,7 @@ public class NotifyFunction(
             return;
         }
 
+        // try and create the email request from the message, if the event type is not supported then log and ignore the message
         var evt = eventFactory.Create(envelope);
 
         if (evt == null)
@@ -45,16 +46,19 @@ public class NotifyFunction(
             return;
         }
 
-        // send the email via the Gov UK notification service
         logger.LogAsInformation("Sending email...");
 
+        // send the email via the Gov UK notification service
         await mediator.Send(evt);
 
         var parameters = $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
 
+        // log the details of the email that was sent, including the event data, event type and email template id
         logger.LogAsInformation(parameters: parameters, "Email successfully sent.");
     }
 
+    // This is an additional HTTP triggered function that can
+    // be used for manual testing and sending of email notifications.
     [Function("NotifyFunctionManual")]
     public async Task NotifyManual(
        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "notify")]
@@ -63,8 +67,8 @@ public class NotifyFunction(
     {
         logger.LogInformation("Received HTTP notification request.");
 
+        // convert the received message into json string
         var body = await new StreamReader(req.Body).ReadToEndAsync();
-
         var envelope = JsonSerializer.Deserialize<EmailEnvelope>(body);
 
         if (envelope == null)
@@ -73,6 +77,7 @@ public class NotifyFunction(
             return;
         }
 
+        // try and create the email request from the message, if the event type is not supported then log and ignore the message
         var evt = eventFactory.Create(envelope);
 
         if (evt == null)
@@ -83,13 +88,14 @@ public class NotifyFunction(
             return;
         }
 
-        // send the email via the Gov UK notification service
         logger.LogAsInformation("Sending email...");
 
+        // send the email via the Gov UK notification service
         await mediator.Send(evt);
 
         var parameters = $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
 
+        // log the details of the email that was sent
         logger.LogAsInformation(parameters: parameters, "Email successfully sent.");
     }
 }
