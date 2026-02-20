@@ -11,7 +11,8 @@ using Rsp.NotifyFunction.Application.Configuration;
 using Rsp.NotifyFunction.Application.Configuration.HttpClients;
 using Rsp.NotifyFunction.Application.Constants;
 using Rsp.NotifyFunction.Application.Contracts;
-using Rsp.NotifyFunction.Application.Factories;
+using Rsp.NotifyFunction.Application.EmailHandlers;
+using Rsp.NotifyFunction.Application.EventRouters;
 using Rsp.NotifyFunction.Infrastructure;
 using Rsp.NotifyFunction.Infrastructure.HttpMessageHandlers;
 using Rsp.NotifyFunction.Startup.Configuration.AppConfiguration;
@@ -60,10 +61,9 @@ services.ConfigureHttpClientDefaults(http =>
     http.AddStandardResilienceHandler(options => options.Retry.MaxRetryAttempts = 3);
 });
 
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-
-builder.Services.AddSingleton<IEmailRequestFactory, EmailEventFactory>();
+//builder.Services.AddSingleton<IEmailRequestFactory, EmailEventFactory>();
+builder.Services.AddScoped<IEmailHandlerRouter, EmailHandlerRouter>();
+builder.Services.AddScoped<IEmailHandler, GenericEmailHandler>();
 
 // Creating a feature manager without the use of DI. Injecting IFeatureManager
 // via DI is appropriate in consturctor methods. At the startup, it's

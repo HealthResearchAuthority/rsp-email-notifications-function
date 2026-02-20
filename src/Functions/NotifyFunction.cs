@@ -1,19 +1,17 @@
 using System.Text.Json;
 using Azure.Messaging.ServiceBus;
-using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Rsp.Logging.Extensions;
 using Rsp.NotifyFunction.Application.Contracts;
-using Rsp.NotifyFunction.Application.Models.CQRS;
+using Rsp.NotifyFunction.Application.DTO;
 
 namespace Rsp.NotifyFunction.Functions;
 
 public class EmailNotificationFunction(
     ILogger<EmailNotificationFunction> logger,
-    IEmailRequestFactory eventFactory,
-    IMediator mediator)
+    IEmailHandlerRouter router)
 {
     // Function that listens to the azure service bus queue for new messages
     // and is triggered when a new message is added to the queue
@@ -35,21 +33,10 @@ public class EmailNotificationFunction(
             return;
         }
 
-        // try and create the email request from the message, if the event type is not supported then log and ignore the message
-        var evt = eventFactory.Create(envelope);
-
-        if (evt == null)
-        {
-            logger.LogInformation(
-                "Ignoring unsupported event type {EventType}",
-                envelope.EventType);
-            return;
-        }
-
         logger.LogAsInformation("Sending email...");
 
         // send the email via the Gov UK notification service
-        await mediator.Send(evt);
+        await router.Route(envelope);
 
         var parameters = $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
 
@@ -77,21 +64,10 @@ public class EmailNotificationFunction(
             return;
         }
 
-        // try and create the email request from the message, if the event type is not supported then log and ignore the message
-        var evt = eventFactory.Create(envelope);
-
-        if (evt == null)
-        {
-            logger.LogInformation(
-                "Ignoring unsupported event type {EventType}",
-                envelope.EventType);
-            return;
-        }
-
         logger.LogAsInformation("Sending email...");
 
         // send the email via the Gov UK notification service
-        await mediator.Send(evt);
+        await router.Route(envelope);
 
         var parameters = $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
 

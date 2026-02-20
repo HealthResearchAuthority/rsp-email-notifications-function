@@ -1,30 +1,33 @@
-﻿using MediatR;
+﻿using System.Text.Json;
 using Rsp.NotifyFunction.Application.Contracts;
 using Rsp.NotifyFunction.Application.DTO;
-using Rsp.NotifyFunction.Application.Models.CQRS.Requests;
 using Rsp.NotifyFunction.Application.ServiceClients;
 
-namespace Rsp.NotifyFunction.Application.Models.CQRS.Handlers;
+namespace Rsp.NotifyFunction.Application.EmailHandlers;
 
 public class GenericEmailHandler(
     INotifyService notifyService,
     IUserManagementServiceClient userManagementClient)
-    : IRequestHandler<GenericEmailRequest>
+    : IEmailHandler
 {
+    public string EventType => "GenericNotification";
+
     /// <summary>
     /// Handles the generic email request by retrieving necessary data and sending an email notification.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task Handle(GenericEmailRequest request, CancellationToken cancellationToken)
+    public async Task Handle(EmailEnvelope envelope)
     {
-        var userIds = request.UserIds;
+        var additionalData = envelope.Data.Deserialize<GenericEmailData>();
+        var userIds = envelope.UserIds;
 
         // Retrieve user details for the provided user IDs using the user management service client
         var usersResponse = await userManagementClient.GetUsersById(userIds, pageIndex: 1, pageSize: 1000);
         if (usersResponse.IsSuccessStatusCode
-            && usersResponse.Content != null)
+            && usersResponse.Content != null
+            && additionalData != null)
         {
             // For each user retrieved,
             // create an email notification message and send it using the notify service
@@ -34,13 +37,14 @@ public class GenericEmailHandler(
             {
                 var message = new EmailNotificationMessage
                 {
-                    EmailTemplateId = request.EmailTemplateId,
-                    EventType = request.EventType.ToString(),
+                    EmailTemplateId = envelope.EmailTemplateId,
+                    EventType = envelope.EventType.ToString(),
                     RecipientAdress = user.Email,
                     Data = new Dictionary<string, dynamic>
                      {
                          { "firstName", user.GivenName },
-                         { "lastName", user.FamilyName }
+                         { "lastName", user.FamilyName },
+                         { "dashboardLink", additionalData.DashboardUrl }
                      }
                 };
 
