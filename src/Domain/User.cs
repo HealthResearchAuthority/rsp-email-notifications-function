@@ -1,5 +1,7 @@
 ﻿namespace Rsp.NotifyFunction.Domain;
-public record User(string? Id,
+public record User
+(
+    string? Id,
     string? IdentityProviderId,
     string? Title,
     string GivenName,
@@ -12,4 +14,5 @@ public record User(string? Id,
     string Status,
     DateTime? LastUpdated,
     DateTime? LastLogin = null,
-    DateTime? CurrentLogin = null);
+    DateTime? CurrentLogin = null
+);
