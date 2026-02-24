@@ -61,7 +61,6 @@ services.ConfigureHttpClientDefaults(http =>
     http.AddStandardResilienceHandler(options => options.Retry.MaxRetryAttempts = 3);
 });
 
-//builder.Services.AddSingleton<IEmailRequestFactory, EmailEventFactory>();
 builder.Services.AddScoped<IEmailHandlerRouter, EmailHandlerRouter>();
 builder.Services.AddScoped<IEmailHandler, GenericEmailHandler>();
 
