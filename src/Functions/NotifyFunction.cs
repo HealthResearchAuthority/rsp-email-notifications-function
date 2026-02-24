@@ -1,18 +1,22 @@
+using System.Text.Json;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Rsp.Logging.Extensions;
 using Rsp.NotifyFunction.Application.Contracts;
-using Rsp.NotifyFunction.Application.Models;
+using Rsp.NotifyFunction.Application.DTO;
 
 namespace Rsp.NotifyFunction.Functions;
 
-public class NotifyFunction(ILogger<NotifyFunction> logger, INotifyService rspNotifyService)
+public class EmailNotificationFunction(
+    ILogger<EmailNotificationFunction> logger,
+    IEmailHandlerRouter router)
 {
-    // function that listens to the azure service bus queue for new messages and is triggered when a new message is added to the queue
-    [Function(nameof(NotifyFunction))]
-    public async Task Run
+    // Function that listens to the azure service bus queue for new messages
+    // and is triggered when a new message is added to the queue
+    [Function(nameof(EmailNotificationFunction))]
+    public async Task Notify
     (
         [ServiceBusTrigger("%QueueName%", Connection = "EmailNotificationsConnection")]
         ServiceBusReceivedMessage message,
@@ -21,11 +25,9 @@ public class NotifyFunction(ILogger<NotifyFunction> logger, INotifyService rspNo
     {
         // convert the received message into json string
         var notificationMessage = message.Body.ToString();
+        var envelope = JsonSerializer.Deserialize<EmailEnvelope>(notificationMessage);
 
-        // parse incoming message into the EmailNotificationMessage object
-        var emailNotification = JsonConvert.DeserializeObject<EmailNotificationMessage>(notificationMessage);
-
-        if (emailNotification == null)
+        if (envelope == null)
         {
             logger.LogAsWarning("Message could not be deserialized.");
             return;
@@ -34,16 +36,42 @@ public class NotifyFunction(ILogger<NotifyFunction> logger, INotifyService rspNo
         logger.LogAsInformation("Sending email...");
 
         // send the email via the Gov UK notification service
-        var response = await rspNotifyService.SendEmail(emailNotification);
+        await router.Route(envelope);
 
-        if (response != null)
+        var parameters = $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
+
+        // log the details of the email that was sent, including the event data, event type and email template id
+        logger.LogAsInformation(parameters: parameters, "Email successfully sent.");
+    }
+
+    // This is an additional HTTP triggered function that can
+    // be used for manual testing and sending of email notifications.
+    [Function("NotifyFunctionManual")]
+    public async Task NotifyManual(
+       [HttpTrigger(AuthorizationLevel.Function, "post", Route = "notify")]
+        HttpRequestData req,
+        ServiceBusReceivedMessage message)
+    {
+        logger.LogInformation("Received HTTP notification request.");
+
+        // convert the received message into json string
+        var body = await new StreamReader(req.Body).ReadToEndAsync();
+        var envelope = JsonSerializer.Deserialize<EmailEnvelope>(body);
+
+        if (envelope == null)
         {
-            // Complete the message which removes the message from the queue since it has been proccessed
-            await messageActions.CompleteMessageAsync(message);
+            logger.LogAsWarning("Message could not be deserialized.");
+            return;
         }
 
-        var parameters = $"EmailName: {emailNotification.EventName}, EmailAddress: {emailNotification.RecipientAddress}, EmailTemplateId: {emailNotification.EmailTemplateId}";
+        logger.LogAsInformation("Sending email...");
 
+        // send the email via the Gov UK notification service
+        await router.Route(envelope);
+
+        var parameters = $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
+
+        // log the details of the email that was sent
         logger.LogAsInformation(parameters: parameters, "Email successfully sent.");
     }
 }

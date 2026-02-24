@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "rspnotifyfunction": {
+    "Rsp.NotifyFunction": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7220",
+      "commandLineArgs": "--port 7138",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       }
