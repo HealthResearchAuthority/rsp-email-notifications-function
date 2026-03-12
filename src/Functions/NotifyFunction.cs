@@ -1,12 +1,3 @@
-using System.Text.Json;
-using Azure.Messaging.ServiceBus;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
-using Rsp.Logging.Extensions;
-using Rsp.NotifyFunction.Application.Contracts;
-using Rsp.NotifyFunction.Application.DTO;
-
 namespace Rsp.NotifyFunction.Functions;
 
 public class EmailNotificationFunction(

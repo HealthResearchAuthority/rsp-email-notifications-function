@@ -1,6 +1,4 @@
-﻿using Rsp.NotifyFunction.Domain;
-
-namespace Rsp.NotifyFunction.Application.DTO;
+﻿namespace Rsp.NotifyFunction.Application.DTO;
 
 /// <summary>
 /// Represents the response from the user management service when retrieving user details by their IDs,

@@ -1,8 +1,4 @@
-﻿using Notify.Models;
-using Notify.Models.Responses;
-using Rsp.NotifyFunction.Application.DTO;
-
-namespace Rsp.NotifyFunction.Application.Contracts;
+﻿namespace Rsp.NotifyFunction.Application.Contracts;
 
 /// <summary>
 /// Defines the contract for a notification service

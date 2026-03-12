@@ -1,10 +1,4 @@
-﻿using Notify.Interfaces;
-using Notify.Models;
-using Notify.Models.Responses;
-using Rsp.NotifyFunction.Application.Contracts;
-using Rsp.NotifyFunction.Application.DTO;
-
-namespace Rsp.NotifyFunction.Services;
+﻿namespace Rsp.NotifyFunction.Services;
 
 public class NotifyService(IAsyncNotificationClient notifyClient) : INotifyService
 {

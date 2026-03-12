@@ -1,11 +1,4 @@
-﻿using Azure.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.AzureAppConfiguration;
-using Microsoft.Extensions.DependencyInjection;
-using Rsp.NotifyFunction.Application.Configuration;
-using Rsp.NotifyFunction.Startup.Configuration.AppConfiguration;
-
-namespace Rsp.NotifyFunction.Startup.Configuration.AppConfiguration;
+﻿namespace Rsp.NotifyFunction.Startup.Configuration;
 
 public static class AzureAppConfiguration
 {

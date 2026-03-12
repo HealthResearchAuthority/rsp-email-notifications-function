@@ -1,9 +1,3 @@
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Middleware;
-using Microsoft.Extensions.Logging;
-using Rsp.Logging.Extensions;
-using Rsp.NotifyFunction.Application.Constants;
-
 namespace Rsp.NotifyFunction.Infrastructure;
 
 public class ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> logger) : IFunctionsWorkerMiddleware

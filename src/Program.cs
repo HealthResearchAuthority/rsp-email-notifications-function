@@ -1,86 +1,94 @@
-using Azure.Core;
-using Azure.Identity;
-using Microsoft.Azure.Functions.Worker.Builder;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.FeatureManagement;
-using Rsp.Logging.Extensions;
-using Rsp.Logging.Interceptors;
-using Rsp.NotifyFunction.Application.Configuration;
-using Rsp.NotifyFunction.Application.Configuration.HttpClients;
-using Rsp.NotifyFunction.Application.Constants;
-using Rsp.NotifyFunction.Application.Contracts;
-using Rsp.NotifyFunction.Application.EmailHandlers;
-using Rsp.NotifyFunction.Application.EventRouters;
-using Rsp.NotifyFunction.Infrastructure;
-using Rsp.NotifyFunction.Infrastructure.HttpMessageHandlers;
-using Rsp.NotifyFunction.Startup.Configuration.AppConfiguration;
-using Rsp.NotifyFunction.Startup.Configuration.Services;
+namespace Rsp.NotifyFunction;
 
-var builder = FunctionsApplication.CreateBuilder(args);
-builder.ConfigureFunctionsWebApplication();
-
-var services = builder.Services;
-var configuration = builder.Configuration;
-
-// 1) Development-only local config
-if (builder.Environment.IsDevelopment())
+[ExcludeFromCodeCoverage]
+public static class Program
 {
-    builder.Configuration
-        .AddJsonFile("local.settings.json", true, true)
-        .AddUserSecrets<Program>(true);
+    public static async Task Main(string[] args)
+    {
+        var builder = FunctionsApplication.CreateBuilder(args);
+        builder.ConfigureFunctionsWebApplication();
+
+        // 1) Development-only local config
+        if (builder.Environment.IsDevelopment())
+            builder.Configuration
+                .AddJsonFile("local.settings.json", true, true)
+                .AddUserSecrets<UserSecretsAnchor>(true);
+
+        // 2) Common config
+        builder.Configuration
+            .AddJsonFile("featuresettings.json", true, true)
+            .AddEnvironmentVariables();
+
+        // 3) Attach Azure App Configuration in non-Dev
+        if (!builder.Environment.IsDevelopment())
+            builder.Services.AddAzureAppConfiguration(builder.Configuration);
+        else
+            // Use DefaultAzureCredential in development environment
+            // Need to give access to user's account on API - Or verify if this works with user's
+            // identity You should have these set in your local settings or environment variables: "AZURE_CLIENT_ID","AZURE_TENANT_ID","AZURE_CLIENT_SECRET"
+            builder.Services.AddSingleton<TokenCredential>(new DefaultAzureCredential());
+
+        builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
+        var appSettings = builder.Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()!;
+
+        // ✅ ONE TokenCredential registration, chosen by environment
+        builder.Services.AddSingleton<TokenCredential>(_ =>
+        {
+            if (builder.Environment.IsDevelopment())
+            {
+                // Prefer local.settings.json Values first
+                var clientId = builder.Configuration["Values:AZURE_CLIENT_ID"]
+                               ?? builder.Configuration["AZURE_CLIENT_ID"];
+                var tenantId = builder.Configuration["Values:AZURE_TENANT_ID"]
+                               ?? builder.Configuration["AZURE_TENANT_ID"];
+                var clientSecret = builder.Configuration["Values:AZURE_CLIENT_SECRET"]
+                                   ?? builder.Configuration["AZURE_CLIENT_SECRET"];
+
+                if (string.IsNullOrWhiteSpace(clientId) ||
+                    string.IsNullOrWhiteSpace(tenantId) ||
+                    string.IsNullOrWhiteSpace(clientSecret))
+                    throw new InvalidOperationException(
+                        "Missing AZURE_CLIENT_ID / AZURE_TENANT_ID / AZURE_CLIENT_SECRET in local.settings.json (Values:...) or environment variables.");
+
+                // Uses EXACTLY what's in local.settings.json (no stale machine env vars)
+                return new ClientSecretCredential(tenantId, clientId, clientSecret);
+            }
+
+            // Non-dev: Managed Identity
+            return new ManagedIdentityCredential(appSettings.ManagedIdentityNotifyClientID);
+        });
+
+        builder.Services.AddSingleton(appSettings);
+
+        builder.Services.ConfigureHttpClientDefaults(http =>
+        {
+            // Turn on resilience by default
+            http.AddStandardResilienceHandler(options => options.Retry.MaxRetryAttempts = 3);
+        });
+
+        // register dependencies
+        builder.Services.AddMemoryCache();
+        builder.Services.AddServices(appSettings);
+
+
+        builder.Services.AddHttpContextAccessor();
+
+
+        builder.Services.AddTransient<UserServiceAuthHeadersHandler>();
+        builder.Services.AddHttpClients(appSettings);
+
+        // Creating a feature manager without the use of DI. Injecting IFeatureManager via DI is
+        // appropriate in constructor methods. At the startup, it's not recommended to call
+        // services.BuildServiceProvider and retrieve IFeatureManager via provider. Instead, the
+        // following approach is recommended by creating FeatureManager with
+        // ConfigurationFeatureDefinitionProvider using the existing configuration.
+        var featureManager = new FeatureManager(new ConfigurationFeatureDefinitionProvider(builder.Configuration));
+
+        if (await featureManager.IsEnabledAsync(Features.InterceptedLogging))
+            builder.Services.AddLoggingInterceptor<LoggingInterceptor>();
+
+        var app = builder.Build();
+
+        await app.RunAsync();
+    }
 }
-
-// 2) Common config
-builder.Configuration
-    .AddJsonFile("featuresettings.json", true, true)
-    .AddEnvironmentVariables();
-
-var appSettingsSection = builder.Configuration.GetSection(nameof(AppSettings));
-var appSettings = appSettingsSection.Get<AppSettings>()!;
-
-services.AddSingleton(appSettings);
-services.AddServices(appSettings);
-
-if (!builder.Environment.IsDevelopment())
-{
-    // Load configuration from Azure App Configuration
-    services.AddAzureAppConfiguration(configuration);
-
-    builder.Services.AddSingleton<TokenCredential>(new ManagedIdentityCredential(appSettings.ManagedIdentityClientID));
-}
-else
-{
-    builder.Services.AddSingleton<TokenCredential>(new DefaultAzureCredential());
-}
-
-services.ConfigureHttpClientDefaults(http =>
-{
-    // Turn on resilience by default
-    http.AddStandardResilienceHandler(options => options.Retry.MaxRetryAttempts = 3);
-});
-
-builder.Services.AddScoped<IEmailHandlerRouter, EmailHandlerRouter>();
-builder.Services.AddScoped<IEmailHandler, GenericEmailHandler>();
-
-// Creating a feature manager without the use of DI. Injecting IFeatureManager
-// via DI is appropriate in consturctor methods. At the startup, it's
-// not recommended to call services.BuildServiceProvider and retreive IFeatureManager
-// via provider. Instead, the follwing approach is recommended by creating FeatureManager
-// with ConfigurationFeatureDefinitionProvider using the existing configuration.
-var featureManager = new FeatureManager(new ConfigurationFeatureDefinitionProvider(configuration));
-
-if (await featureManager.IsEnabledAsync(Features.InterceptedLogging))
-{
-    services.AddLoggingInterceptor<LoggingInterceptor>();
-}
-
-builder.UseMiddleware<ExceptionHandlingMiddleware>();
-
-services.AddTransient<AuthHeadersHandler>();
-services.AddHttpClients(appSettings);
-
-var host = builder.Build();
-
-await host.RunAsync();

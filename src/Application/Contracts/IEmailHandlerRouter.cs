@@ -1,6 +1,4 @@
-﻿using Rsp.NotifyFunction.Application.DTO;
-
-namespace Rsp.NotifyFunction.Application.Contracts;
+﻿namespace Rsp.NotifyFunction.Application.Contracts;
 
 public interface IEmailHandlerRouter
 {
