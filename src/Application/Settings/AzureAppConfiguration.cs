@@ -1,5 +1,6 @@
-﻿namespace Rsp.NotifyFunction.Application.Configuration;
+﻿namespace Rsp.NotifyFunction.Application.Settings;
 
+[ExcludeFromCodeCoverage]
 public class AzureAppConfiguration
 {
     public string Endpoint { get; set; } = null!;

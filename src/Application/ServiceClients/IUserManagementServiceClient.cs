@@ -1,7 +1,4 @@
-﻿using Refit;
-using Rsp.NotifyFunction.Application.DTO;
-
-namespace Rsp.NotifyFunction.Application.ServiceClients;
+﻿namespace Rsp.NotifyFunction.Application.ServiceClients;
 
 public interface IUserManagementServiceClient
 {

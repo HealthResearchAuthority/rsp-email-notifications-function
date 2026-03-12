@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace Rsp.NotifyFunction.Application.DTO;
+﻿namespace Rsp.NotifyFunction.Application.DTO;
 
 /// <summary>
 /// Represents the structure of the message received from

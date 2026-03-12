@@ -1,9 +1,4 @@
-﻿using System.Text.Json;
-using Rsp.NotifyFunction.Application.Contracts;
-using Rsp.NotifyFunction.Application.DTO;
-using Rsp.NotifyFunction.Application.ServiceClients;
-
-namespace Rsp.NotifyFunction.Application.EmailHandlers;
+﻿namespace Rsp.NotifyFunction.Application.EmailHandlers;
 
 public class GenericEmailHandler(
     INotifyService notifyService,

@@ -1,0 +1,34 @@
+// Global using directives
+
+global using System.Diagnostics.CodeAnalysis;
+global using System.Text.Json;
+global using Azure.Core;
+global using Azure.Identity;
+global using Azure.Messaging.ServiceBus;
+global using Microsoft.Azure.Functions.Worker;
+global using Microsoft.Azure.Functions.Worker.Builder;
+global using Microsoft.Azure.Functions.Worker.Http;
+global using Microsoft.Azure.Functions.Worker.Middleware;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.Configuration.AzureAppConfiguration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.FeatureManagement;
+global using Microsoft.Net.Http.Headers;
+global using Notify.Client;
+global using Notify.Interfaces;
+global using Notify.Models;
+global using Notify.Models.Responses;
+global using Refit;
+global using Rsp.Logging.Extensions;
+global using Rsp.Logging.Interceptors;
+global using Rsp.NotifyFunction.Application.Constants;
+global using Rsp.NotifyFunction.Application.Contracts;
+global using Rsp.NotifyFunction.Application.DTO;
+global using Rsp.NotifyFunction.Application.ServiceClients;
+global using Rsp.NotifyFunction.Application.Settings;
+global using Rsp.NotifyFunction.Domain;
+global using Rsp.NotifyFunction.Infrastructure.HttpMessageHandlers;
+global using Rsp.NotifyFunction.Services;
+global using Rsp.NotifyFunction.Startup.Configuration;

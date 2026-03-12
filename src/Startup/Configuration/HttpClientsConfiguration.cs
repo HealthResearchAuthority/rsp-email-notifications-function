@@ -1,15 +1,13 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
-using Refit;
+﻿
 using Rsp.NotifyFunction.Application.ServiceClients;
-using Rsp.NotifyFunction.Infrastructure.HttpMessageHandlers;
 
-namespace Rsp.NotifyFunction.Application.Configuration.HttpClients;
+namespace Rsp.NotifyFunction.Startup.Configuration;
 
+[ExcludeFromCodeCoverage]
 public static class HttpClientsConfiguration
 {
     /// <summary>
-    /// Adds the Orchestration service http clients
+    ///     Adds the Orchestration service http clients
     /// </summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors</param>
     /// <param name="appSettings">Application settings from appsettings.json</param>
@@ -17,14 +15,14 @@ public static class HttpClientsConfiguration
     {
         services
             .AddRestClient<IUserManagementServiceClient>()
-            .ConfigureHttpClient(client => client.BaseAddress = appSettings.ApplicationsServiceUri)
-            .AddHttpMessageHandler<AuthHeadersHandler>();
+            .ConfigureHttpClient(client => client.BaseAddress = appSettings.UsersServiceUri)
+            .AddHttpMessageHandler<UserServiceAuthHeadersHandler>();
 
         return services;
     }
 
     /// <summary>
-    /// Adds the rest client.
+    ///     Adds the rest client.
     /// </summary>
     /// <typeparam name="T">Interface to register as a Refit client</typeparam>
     /// <param name="services">Specifies the contract for a collection of service descriptors</param>
@@ -39,8 +37,9 @@ public static class HttpClientsConfiguration
         var refitSettings = new RefitSettings
         {
             ContentSerializer = new SystemTextJsonContentSerializer(options),
-            // Buffering enabled while we wait for this fix: https://github.com/reactiveui/refit/issues/1099
-            // Otherwise the "Content-Length" won't be set and downstream requests with a body will fail
+            // Buffering enabled while we wait for this fix:
+            // https://github.com/reactiveui/refit/issues/1099 Otherwise the "Content-Length" won't
+            // be set and downstream requests with a body will fail
             Buffered = true
         };
 

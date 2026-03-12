@@ -8,6 +8,11 @@
     <UserSecretsId>36b34f84-dc2c-4d7b-a23e-21a4536a84fa</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Startup\Configuration\AppConfiguration\**" />
+    <EmbeddedResource Remove="Startup\Configuration\AppConfiguration\**" />
+    <None Remove="Startup\Configuration\AppConfiguration\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="local.settings.json" />
   </ItemGroup>
 
