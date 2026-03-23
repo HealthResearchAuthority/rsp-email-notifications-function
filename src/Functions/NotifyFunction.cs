@@ -29,7 +29,8 @@ public class EmailNotificationFunction(
         // send the email via the Gov UK notification service
         await router.Route(envelope);
 
-        var parameters = $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
+        var parameters =
+            $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
 
         // log the details of the email that was sent, including the event data, event type and email template id
         logger.LogAsInformation(parameters: parameters, "Email successfully sent.");
@@ -39,7 +40,7 @@ public class EmailNotificationFunction(
     // be used for manual testing and sending of email notifications.
     [Function("NotifyFunctionManual")]
     public async Task NotifyManual(
-       [HttpTrigger(AuthorizationLevel.Function, "post", Route = "notify")]
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "notify")]
         HttpRequestData req,
         ServiceBusReceivedMessage message)
     {
@@ -60,7 +61,8 @@ public class EmailNotificationFunction(
         // send the email via the Gov UK notification service
         await router.Route(envelope);
 
-        var parameters = $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
+        var parameters =
+            $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
 
         // log the details of the email that was sent
         logger.LogAsInformation(parameters: parameters, "Email successfully sent.");

@@ -1,6 +1,6 @@
 ﻿namespace Rsp.NotifyFunction.Domain;
-public record User
-(
+
+public record User(
     string? Id,
     string? IdentityProviderId,
     string? Title,

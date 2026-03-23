@@ -1,5 +1,4 @@
-﻿
-using Rsp.NotifyFunction.Application.ServiceClients;
+﻿using Rsp.NotifyFunction.Application.ServiceClients;
 
 namespace Rsp.NotifyFunction.Startup.Configuration;
 

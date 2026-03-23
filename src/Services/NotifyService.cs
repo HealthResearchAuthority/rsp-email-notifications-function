@@ -20,7 +20,7 @@ public class NotifyService(IAsyncNotificationClient notifyClient) : INotifyServi
     public Task<EmailNotificationResponse> SendEmail(EmailNotificationMessage emailNotificationMessage)
     {
         return notifyClient
-            .SendEmailAsync(emailNotificationMessage.RecipientAdress,
+            .SendEmailAsync(emailNotificationMessage.RecipientAddress,
                 emailNotificationMessage.EmailTemplateId,
                 emailNotificationMessage.Data.ToDictionary());
     }
