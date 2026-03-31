@@ -1,39 +1,37 @@
 ﻿namespace Rsp.NotifyFunction.Application.EmailHandlers;
 
 /// <summary>
-/// Handles the PROJECT_CLOSURE email event.
-/// 
-/// This handler is responsible for:
-/// 1. Retrieving user email addresses from User Management
-/// 2. Extracting project closure data from the envelope
-/// 3. Deduplicating and sanitising those email addresses
-/// 4. Sending individual email notifications using the configured template
+///     Handles the PROJECT_CLOSURE email event.
+///     This handler is responsible for:
+///     1. Retrieving user email addresses from User Management
+///     2. Extracting project closure data from the envelope
+///     3. Deduplicating and sanitising those email addresses
+///     4. Sending individual email notifications using the configured template
 /// </summary>
 public class ProjectClosureHandler(
     INotifyService notifyService,
-    IUserManagementServiceClient userManagementClient)
+    IUserEmailResolver userEmailResolver)
     : IEmailHandler
 {
     /// <summary>
-    /// The event type this handler is responsible for.
-    /// Must match the EventType configured in EmailTemplates.
+    ///     The event type this handler is responsible for.
+    ///     Must match the EventType configured in EmailTemplates.
     /// </summary>
-    public string EventType => "PROJECT_CLOSURE";
+    public string EventType => NotificationTypes.ProjectClosure;
 
     /// <summary>
-    /// Handles the Project Closure notification workflow.
-    /// 
-    /// Flow:
-    /// - Fetch users by IDs from the envelope
-    /// - Deserialize template-specific data (project closure details)
-    /// - Extract and clean email addresses
-    /// - Remove duplicates
-    /// - Send one email per recipient (Notify does not support bulk send)
+    ///     Handles the Project Closure notification workflow.
+    ///     Flow:
+    ///     - Fetch users by IDs from the envelope
+    ///     - Deserialize template-specific data (project closure details)
+    ///     - Extract and clean email addresses
+    ///     - Remove duplicates
+    ///     - Send one email per recipient (Notify does not support bulk send)
     /// </summary>
     public async Task Handle(EmailEnvelope envelope)
     {
         // Defensive: ensure we actually have user IDs to process
-        if (!envelope.UserIds.Any())
+        if (!envelope.UserIdsOrEmails.Any())
         {
             return;
         }
@@ -41,26 +39,17 @@ public class ProjectClosureHandler(
         // ------------------------------------------------------------
         // Step 0: Extract template-specific data from the envelope
         // This contains values required by the email template
-        // (e.g. IRAS ID and project title)
         // ------------------------------------------------------------
         var additionalData = envelope.Data.Deserialize<ProjectClosureDto>();
 
-        var emails = new List<string>();
+        // Defensive: ensure we actually have user IDs to process
+        if (!envelope.UserIdsOrEmails.Any())
+        {
+            return;
+        }
 
         // ------------------------------------------------------------
         // Step 1: Retrieve user details from User Management service
-        // ------------------------------------------------------------
-        var usersResponse = await userManagementClient.GetUsersById(
-            envelope.UserIds,
-            pageIndex: 1,
-            pageSize: 1000);
-
-        if (usersResponse is { IsSuccessStatusCode: true, Content: not null })
-        {
-            // Extract email addresses from returned users
-            emails.AddRange(usersResponse.Content.Users.Select(user => user.Email));
-        }
-
         // ------------------------------------------------------------
         // Step 2: Clean and deduplicate email addresses
         // - Remove null/empty
@@ -68,11 +57,7 @@ public class ProjectClosureHandler(
         // - Normalize casing
         // - Ensure uniqueness
         // ------------------------------------------------------------
-        var uniqueEmails = emails
-            .Where(e => !string.IsNullOrWhiteSpace(e))
-            .Select(e => e.Trim().ToLowerInvariant())
-            .Distinct()
-            .ToList();
+        var emails = await userEmailResolver.ResolveEmailsAsync(envelope.UserIdsOrEmails);
 
         // ------------------------------------------------------------
         // Step 3: Send email notifications
@@ -80,14 +65,11 @@ public class ProjectClosureHandler(
         // Notify service does NOT support bulk sending,
         // so we must send one request per recipient.
         // ------------------------------------------------------------
-        foreach (var message in uniqueEmails.Select(email => new EmailNotificationMessage
+        foreach (var message in emails.Select(email => new EmailNotificationMessage
                  {
-                     EmailTemplateId = envelope.EmailTemplateId, // Template tied to PROJECT_CLOSURE
-                     EventType = envelope.EventType,             // Should be "PROJECT_CLOSURE"
+                     EmailTemplateId = envelope.EmailTemplateId,
+                     EventType = envelope.EventType,
                      RecipientAddress = email,
-
-                     // Template data payload
-                     // These keys MUST match placeholders in the email template
                      Data = new Dictionary<string, dynamic>
                      {
                          { "iras_id", additionalData.IrasId },

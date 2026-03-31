@@ -3,10 +3,10 @@
 public static class AzureAppConfiguration
 {
     /// <summary>
-    /// Configures Azure App Configuration
+    ///     Configures Azure App Configuration
     /// </summary>
     /// <param name="services">
-    /// <see cref="IServiceCollection" />
+    ///     <see cref="IServiceCollection" />
     /// </param>
     public static IServiceCollection AddAzureAppConfiguration(this IServiceCollection services,
         ConfigurationManager configuration)

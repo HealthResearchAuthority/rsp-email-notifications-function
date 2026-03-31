@@ -12,7 +12,9 @@ public class EmailHandlerRouter : IEmailHandlerRouter
     public Task Route(EmailEnvelope envelope)
     {
         if (!_handlers.TryGetValue(envelope.EventType, out var handler))
+        {
             return Task.CompletedTask; // ignore unknown events
+        }
 
         return handler.Handle(envelope);
     }

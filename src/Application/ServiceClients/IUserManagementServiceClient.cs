@@ -3,7 +3,7 @@
 public interface IUserManagementServiceClient
 {
     /// <summary>
-    /// Gets users by their ids database
+    ///     Gets users by their ids database
     /// </summary>
     /// <returns>List of users</returns>
     [Post("/users/by-ids")]

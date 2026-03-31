@@ -1,5 +1,6 @@
 ﻿namespace Rsp.NotifyFunction.Application.Settings;
 
+[ExcludeFromCodeCoverage]
 public class MicrosoftEntra
 {
     public string Authority { get; set; } = null!;

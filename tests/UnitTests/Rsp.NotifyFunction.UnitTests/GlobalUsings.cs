@@ -1,0 +1,32 @@
+// Global using directives
+
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Net;
+global using System.Security.Claims;
+global using System.Text;
+global using System.Text.Json;
+global using System.Threading.Tasks;
+global using Azure.Messaging.ServiceBus;
+global using Microsoft.Azure.Functions.Worker;
+global using Microsoft.Azure.Functions.Worker.Http;
+global using Microsoft.Extensions.Logging;
+global using Moq;
+global using Moq.AutoMock;
+global using Notify.Interfaces;
+global using Notify.Models;
+global using Notify.Models.Responses;
+global using Refit;
+global using Rsp.NotifyFunction.Application.Constants;
+global using Rsp.NotifyFunction.Application.Contracts;
+global using Rsp.NotifyFunction.Application.DTO;
+global using Rsp.NotifyFunction.Application.EmailHandlers;
+global using Rsp.NotifyFunction.Application.EventRouters;
+global using Rsp.NotifyFunction.Application.ServiceClients;
+global using Rsp.NotifyFunction.Domain;
+global using Rsp.NotifyFunction.Functions;
+global using Rsp.NotifyFunction.Infrastructure;
+global using Rsp.NotifyFunction.Services;
+global using Rsp.UsersService.UnitTests;
+global using Shouldly;

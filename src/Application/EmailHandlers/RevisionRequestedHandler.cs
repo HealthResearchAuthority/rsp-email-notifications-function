@@ -1,39 +1,37 @@
 ﻿namespace Rsp.NotifyFunction.Application.EmailHandlers;
 
 /// <summary>
-/// Handles the REVISION_REQUESTED email event.
-/// 
-/// This handler is responsible for:
-/// 1. Retrieving user email addresses from User Management
-/// 2. Extracting revision-specific data from the envelope
-/// 3. Deduplicating and sanitising those email addresses
-/// 4. Sending individual email notifications using the configured template
+///     Handles the REVISION_REQUESTED email event.
+///     This handler is responsible for:
+///     1. Retrieving user email addresses from User Management
+///     2. Extracting revision-specific data from the envelope
+///     3. Deduplicating and sanitising those email addresses
+///     4. Sending individual email notifications using the configured template
 /// </summary>
 public class RevisionRequestedHandler(
     INotifyService notifyService,
-    IUserManagementServiceClient userManagementClient)
+    IUserEmailResolver userEmailResolver)
     : IEmailHandler
 {
     /// <summary>
-    /// The event type this handler is responsible for.
-    /// Must match the EventType configured in EmailTemplates.
+    ///     The event type this handler is responsible for.
+    ///     Must match the EventType configured in EmailTemplates.
     /// </summary>
-    public string EventType => "REVISION_REQUESTED";
+    public string EventType => NotificationTypes.RevisionRequested;
 
     /// <summary>
-    /// Handles the Revision Requested notification workflow.
-    /// 
-    /// Flow:
-    /// - Fetch users by IDs from the envelope
-    /// - Deserialize template-specific data (revision details)
-    /// - Extract and clean email addresses
-    /// - Remove duplicates
-    /// - Send one email per recipient (Notify does not support bulk send)
+    ///     Handles the Revision Requested notification workflow.
+    ///     Flow:
+    ///     - Fetch users by IDs from the envelope
+    ///     - Deserialize template-specific data (revision details)
+    ///     - Extract and clean email addresses
+    ///     - Remove duplicates
+    ///     - Send one email per recipient (Notify does not support bulk send)
     /// </summary>
     public async Task Handle(EmailEnvelope envelope)
     {
         // Defensive: ensure we actually have user IDs to process
-        if (!envelope.UserIds.Any())
+        if (!envelope.UserIdsOrEmails.Any())
         {
             return;
         }
@@ -44,67 +42,34 @@ public class RevisionRequestedHandler(
         // ------------------------------------------------------------
         var additionalData = envelope.Data.Deserialize<RevisionRequestedDto>();
 
-        var emails = new List<string>();
-
-        // ------------------------------------------------------------
-        // Step 1: Retrieve user details from User Management service
-        // ------------------------------------------------------------
-        var usersResponse = await userManagementClient.GetUsersById(
-            envelope.UserIds,
-            pageIndex: 1,
-            pageSize: 1000);
-
-        if (usersResponse is { IsSuccessStatusCode: true, Content: not null })
+        // Defensive: ensure we actually have user IDs to process
+        if (!envelope.UserIdsOrEmails.Any())
         {
-            // Extract email addresses from returned users
-            emails.AddRange(usersResponse.Content.Users.Select(user => user.Email));
+            return;
         }
 
         // ------------------------------------------------------------
         // Step 1: Retrieve user details from User Management service
         // ------------------------------------------------------------
-        var usersResponse = await userManagementClient.GetUsersById(
-            envelope.UserIds,
-            pageIndex: 1,
-            pageSize: 1000);
-
-        if (usersResponse is { IsSuccessStatusCode: true, Content: not null })
-        {
-            // Extract email addresses from returned users
-            emails.AddRange(usersResponse.Content.Users.Select(user => user.Email));
-        }
-
-
-
-
-
-        // ------------------------------------------------------------
-        // Step 3: Clean and deduplicate email addresses
+        // Step 2: Clean and deduplicate email addresses
         // - Remove null/empty
         // - Trim whitespace
         // - Normalize casing
         // - Ensure uniqueness
         // ------------------------------------------------------------
-        var uniqueEmails = emails
-            .Where(e => !string.IsNullOrWhiteSpace(e))
-            .Select(e => e.Trim().ToLowerInvariant())
-            .Distinct()
-            .ToList();
+        var emails = await userEmailResolver.ResolveEmailsAsync(envelope.UserIdsOrEmails);
 
         // ------------------------------------------------------------
-        // Step 4: Send email notifications
+        // Step 3: Send email notifications
         // Note:
         // Notify service does NOT support bulk sending,
         // so we must send one request per recipient.
         // ------------------------------------------------------------
-        foreach (var message in uniqueEmails.Select(email => new EmailNotificationMessage
+        foreach (var message in emails.Select(email => new EmailNotificationMessage
                  {
-                     EmailTemplateId = envelope.EmailTemplateId, // Template tied to REVISION_REQUESTED
-                     EventType = envelope.EventType,             // Should be "REVISION_REQUESTED"
+                     EmailTemplateId = envelope.EmailTemplateId,
+                     EventType = envelope.EventType,
                      RecipientAddress = email,
-
-                     // Template data payload
-                     // These keys MUST match placeholders in the email template
                      Data = new Dictionary<string, dynamic>
                      {
                          { "mod_id", additionalData.ModificationId },

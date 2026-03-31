@@ -1,6 +1,4 @@
-﻿using Rsp.NotifyFunction.Application.ServiceClients;
-
-namespace Rsp.NotifyFunction.Startup.Configuration;
+﻿namespace Rsp.NotifyFunction.Startup.Configuration;
 
 [ExcludeFromCodeCoverage]
 public static class HttpClientsConfiguration

@@ -1,8 +1,8 @@
 ﻿namespace Rsp.NotifyFunction.Application.DTO;
 
 /// <summary>
-/// Represents the data required to send an email notification used by the send email service,
-/// including the event type, email template ID,
+///     Represents the data required to send an email notification used by the send email service,
+///     including the event type, email template ID,
 /// </summary>
 public class EmailNotificationMessage
 {
@@ -10,12 +10,12 @@ public class EmailNotificationMessage
     public string EmailTemplateId { get; set; } = null!;
 
     /// <summary>
-    /// Single email addresses of the recipient
+    ///     Single email addresses of the recipient
     /// </summary>
     public string RecipientAddress { get; set; } = null!;
 
     /// <summary>
-    /// Personalisation data for any placeholder fields in the email template
+    ///     Personalisation data for any placeholder fields in the email template
     /// </summary>
     public IDictionary<string, dynamic> Data { get; set; } = new Dictionary<string, dynamic>();
 }

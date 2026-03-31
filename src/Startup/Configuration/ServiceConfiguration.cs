@@ -13,6 +13,7 @@ public static class ServicesConfiguration
             new NotificationClient(appSettings.GovNotifyApiKey));
 
         services.AddScoped<IEmailHandlerRouter, EmailHandlerRouter>();
+        services.AddScoped<IUserEmailResolver, UserEmailResolver>();
 
         // ADD EMAIL HANDLERS
         services.AddScoped<IEmailHandler, SponsorAddedHandler>();
