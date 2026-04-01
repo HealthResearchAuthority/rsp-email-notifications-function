@@ -1,7 +1,7 @@
 name: $(Build.DefinitionName)_$(Build.SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
 
 pool:
-  vmImage: "Ubuntu-latest"
+  name: "rsp-manageddevopspool"
 
 trigger:
   - main
@@ -18,14 +18,17 @@ parameters:
       - uat
       - pre_prod
       - production
+
   - name: devops_library_branch
     displayName: DevOps Library Branch
     type: string
     default: main
+
   - name: run_sonarcloud_analysis
     displayName: Run Sonar Cloud Analysis
     type: boolean
     default: true
+
   - name: skip_deployment
     displayName: Skip Deployment
     type: boolean
@@ -34,19 +37,32 @@ parameters:
 variables:
   - name: vstsFeed
     value: "0e030eb0-cb72-4f42-b99a-26e6544271c3/0a3e0ad2-23b6-4e8b-ae12-cd6d01fe97e7"
+
   - name: solution
     value: "**/*.sln"
+
   - name: project
     value: "**/*.csproj"
+
+  - name: projectForContainerBuild
+    value: "Rsp.NotifyFunction.csproj"
+
   - name: buildConfiguration
     value: "Release"
+
   - name: service_connection
     ${{ if eq(parameters.env, 'dev') }}:
       value: "ARM Dev Connection New"
     ${{ if eq(parameters.env, 'systemtest_auto') }}:
-      value: "ARM Automated Test Connection"  
+      value: "ARM Automated Test Connection"
     ${{ if eq(parameters.env, 'systemtest_manual') }}:
       value: "ARM Manual Test Connection"
+    ${{ if eq(parameters.env, 'uat') }}:
+      value: "ARM UAT Connection"
+    ${{ if eq(parameters.env, 'pre_prod') }}:
+      value: "ARM PreProd Connection"
+    ${{ if eq(parameters.env, 'production') }}:
+      value: "ARM Production Connection"
 
   - name: appSettingsJson
     value: |
@@ -83,59 +99,79 @@ stages:
     jobs:
       - template: jobs/build.yaml@library
         parameters:
+          run_github_security_scan: false
           sonar_project_key: HealthResearchAuthority_rsp-email-notifications-function
           sonar_project_name: rsp-email-notifications-function
           run_sonarcloud_analysis: ${{ parameters.run_sonarcloud_analysis }}
-          run_github_security_scan: false
-          
+
   - stage: dev
     displayName: "Deploy to Development"
-    variables: 
+    variables:
       - group: 'DevelopmentEnvironment'
+      - name: FunctionAppName
+        value: "func-notify-dev"
     condition: and(eq('${{ parameters.env }}', 'dev'), eq('${{ parameters.skip_deployment }}', 'false'))
     jobs:
       - template: jobs/deployFunction.yaml@library
         parameters:
           appSettings: $(appSettingsJson)
-          
+
   - stage: systemtest_auto
-    variables: 
+    displayName: "Deploy to System Test Auto"
+    variables:
       - group: 'STAutoEnvironment'
+      - name: FunctionAppName
+        value: "func-notify-automationtest"
     condition: eq('${{ parameters.env }}', 'systemtest_auto')
     jobs:
       - template: jobs/deployFunction.yaml@library
         parameters:
           appSettings: $(appSettingsJson)
-          
+
   - stage: systemtest_manual
-    variables: 
+    displayName: "Deploy to System Test Manual"
+    variables:
       - group: 'STManualEnvironment'
+      - name: FunctionAppName
+        value: "func-notify-manualtest"
     condition: eq('${{ parameters.env }}', 'systemtest_manual')
     jobs:
       - template: jobs/deployFunction.yaml@library
         parameters:
           appSettings: $(appSettingsJson)
 
-  - stage: system_integration_test
-    jobs:
-      - job: SystemIntegrationTest
-        steps:
-          - script: echo 'Running system integration tests...'
-
   - stage: uat
+    displayName: "Deploy to UAT"
+    variables:
+      - group: 'UATEnvironment'
+      - name: FunctionAppName
+        value: "func-notify-uat"
+    condition: and(eq('${{ parameters.env }}', 'uat'), eq('${{ parameters.skip_deployment }}', 'false'))
     jobs:
-      - job: UATDeployment
-        steps:
-          - script: echo 'Deploying to UAT...'
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
 
   - stage: pre_prod
+    displayName: "Deploy to PreProd"
+    variables:
+      - group: 'PreProdEnvironment'
+      - name: FunctionAppName
+        value: "func-notify-preprod"
+    condition: and(eq('${{ parameters.env }}', 'pre_prod'), eq('${{ parameters.skip_deployment }}', 'false'))
     jobs:
-      - job: PreProdDeployment
-        steps:
-          - script: echo 'Deploying to Pre-Prod...'
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
 
   - stage: production
+    displayName: "Deploy to Prod"
+    variables:
+      - group: 'ProductionEnvironment'
+      - name: FunctionAppName
+        value: "func-notify-prod"
+    condition: and(eq('${{ parameters.env }}', 'production'), eq('${{ parameters.skip_deployment }}', 'false'))
     jobs:
-      - job: ProductionDeployment
-        steps:
-          - script: echo 'Deploying to Production...'
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
