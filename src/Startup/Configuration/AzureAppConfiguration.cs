@@ -3,10 +3,10 @@
 public static class AzureAppConfiguration
 {
     /// <summary>
-    /// Configures Azure App Configuration
+    ///     Configures Azure App Configuration
     /// </summary>
     /// <param name="services">
-    /// <see cref="IServiceCollection" />
+    ///     <see cref="IServiceCollection" />
     /// </param>
     public static IServiceCollection AddAzureAppConfiguration(this IServiceCollection services,
         ConfigurationManager configuration)
@@ -16,8 +16,7 @@ public static class AzureAppConfiguration
 
         // Load configuration from Azure App Configuration
         configuration.AddAzureAppConfiguration
-        (
-            options =>
+        (options =>
             {
                 options.Connect
                     (
@@ -28,8 +27,7 @@ public static class AzureAppConfiguration
                     .Select(KeyFilter.Any,
                         AppSettings.ServiceLabel) // select all settings using the service name as label
                     .ConfigureRefresh
-                    (
-                        refreshOptions =>
+                    (refreshOptions =>
                         {
                             // Sentinel is a special key, that is registered to monitor the change
                             // when this key is updated all of the keys will updated if refreshAll is true, after the cache is expired
@@ -44,8 +42,7 @@ public static class AzureAppConfiguration
 
                 // enable feature flags
                 options.UseFeatureFlags
-                (
-                    featureFlagOptions =>
+                (featureFlagOptions =>
                     {
                         featureFlagOptions
                             .Select(KeyFilter.Any) // select all flags without any label

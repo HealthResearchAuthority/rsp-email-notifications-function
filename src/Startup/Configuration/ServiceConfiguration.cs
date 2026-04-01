@@ -9,10 +9,19 @@ public static class ServicesConfiguration
     {
         services.AddTransient<INotifyService, NotifyService>();
 
-        services.AddTransient<IAsyncNotificationClient, NotificationClient>(_ => new NotificationClient(appSettings.GovNotifyApiKey));
+        services.AddTransient<IAsyncNotificationClient, NotificationClient>(_ =>
+            new NotificationClient(appSettings.GovNotifyApiKey));
 
         services.AddScoped<IEmailHandlerRouter, EmailHandlerRouter>();
-        services.AddScoped<IEmailHandler, GenericEmailHandler>();
+        services.AddScoped<IUserEmailResolver, UserEmailResolver>();
+
+        // ADD EMAIL HANDLERS
+        services.AddScoped<IEmailHandler, SponsorAddedHandler>();
+        services.AddScoped<IEmailHandler, RevisionRequestedHandler>();
+        services.AddScoped<IEmailHandler, ModificationAuthorisationHandler>();
+        services.AddScoped<IEmailHandler, ProjectClosureHandler>();
+        services.AddScoped<IEmailHandler, ModificationOutcomeHandler>();
+        services.AddScoped<IEmailHandler, FurtherInformationHandler>();
 
         return services;
     }

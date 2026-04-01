@@ -1,7 +1,7 @@
 namespace Rsp.NotifyFunction.Application.Constants;
 
 /// <summary>
-/// Defines constants for feature names.
+///     Defines constants for feature names.
 /// </summary>
 public static class Features
 {

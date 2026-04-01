@@ -4,6 +4,7 @@
 ///     Delegating handler to add authorization header, before calling external api
 /// </summary>
 /// <seealso cref="DelegatingHandler" />
+[ExcludeFromCodeCoverage]
 public class UserServiceAuthHeadersHandler(TokenCredential credential, AppSettings appSettings) : DelegatingHandler
 {
     /// <summary>

@@ -1,7 +1,7 @@
 ﻿namespace Rsp.NotifyFunction.Application.DTO;
 
 /// <summary>
-/// Represents the response from the user management service when retrieving user details by their IDs,
+///     Represents the response from the user management service when retrieving user details by their IDs,
 /// </summary>
 public class UsersResponse
 {

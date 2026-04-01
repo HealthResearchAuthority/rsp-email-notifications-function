@@ -10,9 +10,11 @@ public static class Program
 
         // 1) Development-only local config
         if (builder.Environment.IsDevelopment())
+        {
             builder.Configuration
                 .AddJsonFile("local.settings.json", true, true)
                 .AddUserSecrets<UserSecretsAnchor>(true);
+        }
 
         // 2) Common config
         builder.Configuration
@@ -21,12 +23,16 @@ public static class Program
 
         // 3) Attach Azure App Configuration in non-Dev
         if (!builder.Environment.IsDevelopment())
+        {
             builder.Services.AddAzureAppConfiguration(builder.Configuration);
+        }
         else
             // Use DefaultAzureCredential in development environment
             // Need to give access to user's account on API - Or verify if this works with user's
             // identity You should have these set in your local settings or environment variables: "AZURE_CLIENT_ID","AZURE_TENANT_ID","AZURE_CLIENT_SECRET"
+        {
             builder.Services.AddSingleton<TokenCredential>(new DefaultAzureCredential());
+        }
 
         builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
         var appSettings = builder.Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()!;
@@ -47,8 +53,10 @@ public static class Program
                 if (string.IsNullOrWhiteSpace(clientId) ||
                     string.IsNullOrWhiteSpace(tenantId) ||
                     string.IsNullOrWhiteSpace(clientSecret))
+                {
                     throw new InvalidOperationException(
                         "Missing AZURE_CLIENT_ID / AZURE_TENANT_ID / AZURE_CLIENT_SECRET in local.settings.json (Values:...) or environment variables.");
+                }
 
                 // Uses EXACTLY what's in local.settings.json (no stale machine env vars)
                 return new ClientSecretCredential(tenantId, clientId, clientSecret);
@@ -59,7 +67,6 @@ public static class Program
         });
 
         builder.Services.AddSingleton(appSettings);
-
         builder.Services.ConfigureHttpClientDefaults(http =>
         {
             // Turn on resilience by default
@@ -69,11 +76,7 @@ public static class Program
         // register dependencies
         builder.Services.AddMemoryCache();
         builder.Services.AddServices(appSettings);
-
-
         builder.Services.AddHttpContextAccessor();
-
-
         builder.Services.AddTransient<UserServiceAuthHeadersHandler>();
         builder.Services.AddHttpClients(appSettings);
 
@@ -85,7 +88,9 @@ public static class Program
         var featureManager = new FeatureManager(new ConfigurationFeatureDefinitionProvider(builder.Configuration));
 
         if (await featureManager.IsEnabledAsync(Features.InterceptedLogging))
+        {
             builder.Services.AddLoggingInterceptor<LoggingInterceptor>();
+        }
 
         var app = builder.Build();
 
