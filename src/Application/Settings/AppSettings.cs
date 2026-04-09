@@ -25,4 +25,6 @@ public class AppSettings
     ///     Service.
     /// </summary>
     public string ManagedIdentityNotifyClientID { get; set; } = null!;
+
+    public int DlqMaxRetries { get; set; } = 5; // default fallback
 }

@@ -1,7 +1,4 @@
-﻿using Rsp.NotifyFunction.Application.EmailHandlers;
-using Rsp.NotifyFunction.Application.EventRouters;
-
-namespace Rsp.NotifyFunction.Startup.Configuration;
+﻿namespace Rsp.NotifyFunction.Startup.Configuration;
 
 public static class ServicesConfiguration
 {
@@ -14,6 +11,7 @@ public static class ServicesConfiguration
 
         services.AddScoped<IEmailHandlerRouter, EmailHandlerRouter>();
         services.AddScoped<IUserEmailResolver, UserEmailResolver>();
+        services.AddScoped<IEmailNotificationService, EmailNotificationService>();
 
         // ADD EMAIL HANDLERS
         services.AddScoped<IEmailHandler, SponsorAddedHandler>();

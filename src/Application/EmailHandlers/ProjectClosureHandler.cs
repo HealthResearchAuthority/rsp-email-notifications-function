@@ -67,7 +67,8 @@ public class ProjectClosureHandler(
         // ------------------------------------------------------------
         foreach (var message in emails.Select(email => new EmailNotificationMessage
                  {
-                     EmailTemplateId = envelope.EmailTemplateId,
+                     EmailNotificationId = envelope.EmailNotificationId,
+            EmailTemplateId = envelope.EmailTemplateId,
                      EventType = envelope.EventType,
                      RecipientAddress = email,
                      Data = new Dictionary<string, dynamic>

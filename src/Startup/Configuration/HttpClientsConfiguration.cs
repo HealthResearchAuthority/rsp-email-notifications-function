@@ -15,6 +15,11 @@ public static class HttpClientsConfiguration
             .ConfigureHttpClient(client => client.BaseAddress = appSettings.UsersServiceUri)
             .AddHttpMessageHandler<UserServiceAuthHeadersHandler>();
 
+        services
+            .AddRestClient<IEmailNotificationServiceClient>()
+            .ConfigureHttpClient(client => client.BaseAddress = appSettings.ApplicationsServiceUri)
+            .AddHttpMessageHandler<ApplicationsServiceAuthHeadersHandler>();
+
         return services;
     }
 
