@@ -1,4 +1,4 @@
-﻿namespace Rsp.UsersService.UnitTests.Services;
+﻿namespace Rsp.NotifyFunction.UnitTests.Services;
 
 public class UserEmailResolverTests : TestServiceBase<UserEmailResolver>
 {

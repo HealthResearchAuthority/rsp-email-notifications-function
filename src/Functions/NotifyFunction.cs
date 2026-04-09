@@ -42,7 +42,7 @@ public class NotifyFunction(
 
             await messageActions.CompleteMessageAsync(message);
 
-            await emailNotificationService.Success(new EmailNotificationDto()
+            await emailNotificationService.Success(new EmailNotificationDto
             {
                 Id = envelope.EmailNotificationId,
                 Status = EmailNotificationStatuses.Sent,
@@ -61,8 +61,6 @@ public class NotifyFunction(
                 message,
                 deadLetterReason: "NotifySendFailed",
                 deadLetterErrorDescription: ex.Message);
-
-
         }
         catch (Exception ex)
         {

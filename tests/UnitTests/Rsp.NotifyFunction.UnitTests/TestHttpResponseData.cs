@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Net;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
+﻿namespace Rsp.NotifyFunction.UnitTests;
 
 internal sealed class TestHttpResponseData : HttpResponseData
 {

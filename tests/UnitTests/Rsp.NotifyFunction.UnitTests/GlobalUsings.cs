@@ -28,5 +28,4 @@ global using Rsp.NotifyFunction.Domain;
 global using Rsp.NotifyFunction.Functions;
 global using Rsp.NotifyFunction.Infrastructure;
 global using Rsp.NotifyFunction.Services;
-global using Rsp.UsersService.UnitTests;
 global using Shouldly;

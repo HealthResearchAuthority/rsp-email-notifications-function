@@ -1,10 +1,4 @@
-﻿using System.IO;
-using System.Net;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
-using Rsp.NotifyFunction.UnitTests;
+﻿namespace Rsp.NotifyFunction.UnitTests;
 
 internal sealed class TestHttpRequestData : HttpRequestData
 {

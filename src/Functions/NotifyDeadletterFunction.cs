@@ -22,9 +22,8 @@ public class NotifyDeadletterFunction(
         var maxRetries = GetMaxRetries();
         var body = message.Body;
 
-        
 
-        EmailEnvelope? envelope = JsonSerializer.Deserialize<EmailEnvelope>(body);
+        var envelope = JsonSerializer.Deserialize<EmailEnvelope>(body);
 
 
         if (retryCount >= maxRetries)
@@ -39,7 +38,7 @@ public class NotifyDeadletterFunction(
 
             await messageActions.CompleteMessageAsync(message);
 
-            await emailNotificationService.Error(new EmailNotificationDto()
+            await emailNotificationService.Error(new EmailNotificationDto
             {
                 Id = envelope.EmailNotificationId,
                 Status = EmailNotificationStatuses.Sent,

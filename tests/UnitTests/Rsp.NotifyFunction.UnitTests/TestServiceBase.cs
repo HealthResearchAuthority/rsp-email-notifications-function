@@ -1,4 +1,4 @@
-﻿namespace Rsp.UsersService.UnitTests;
+﻿namespace Rsp.NotifyFunction.UnitTests;
 
 public class TestServiceBase
 {

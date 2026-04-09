@@ -9,7 +9,7 @@ public class EmailNotificationService(IEmailNotificationServiceClient emailNotif
         {
             Id = emailNotificationRequest.Id,
             Status = EmailNotificationStatuses.Sent,
-            SentAt = DateTime.UtcNow,
+            SentAt = DateTime.UtcNow
         });
     }
 

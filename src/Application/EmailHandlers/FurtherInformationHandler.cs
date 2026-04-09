@@ -66,17 +66,17 @@ public class FurtherInformationHandler(
         // so we must send one request per recipient.
         // ------------------------------------------------------------
         foreach (var message in emails.Select(email => new EmailNotificationMessage
-        {
-            EmailNotificationId = envelope.EmailNotificationId,
-            EmailTemplateId = envelope.EmailTemplateId,
-            EventType = envelope.EventType,
-            RecipientAddress = email,
-            Data = new Dictionary<string, dynamic>
+                 {
+                     EmailNotificationId = envelope.EmailNotificationId,
+                     EmailTemplateId = envelope.EmailTemplateId,
+                     EventType = envelope.EventType,
+                     RecipientAddress = email,
+                     Data = new Dictionary<string, dynamic>
                      {
                          { "mod_id", additionalData.ModificationId },
                          { "short_title", additionalData.ShortProjectTitle }
                      }
-        }))
+                 }))
         {
             await notifyService.SendEmail(message);
         }

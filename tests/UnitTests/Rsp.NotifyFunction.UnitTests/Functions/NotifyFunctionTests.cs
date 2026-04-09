@@ -53,5 +53,4 @@ public class NotifyFunctionFunctionTests : TestServiceBase<NotifyFunction.Functi
             Data = JsonSerializer.SerializeToElement(new { Name = "Test User" })
         };
     }
-
 }
