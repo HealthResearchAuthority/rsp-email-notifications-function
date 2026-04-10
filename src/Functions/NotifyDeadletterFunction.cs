@@ -7,13 +7,12 @@ public class NotifyDeadletterFunction(
     IEmailNotificationService emailNotificationService)
 {
     private const int DefaultMaxRetries = 5;
-    private readonly AppSettings _appSettings = appSettings.Value;
 
     [Function(nameof(NotifyDeadletterFunction))]
     public async Task Run(
         [ServiceBusTrigger(
-            "%DeadletterQueueName%",
-            Connection = "EmailNotificationServiceBus",
+            "%AppSettings:EmailNotificationDeadletterQueueName%",
+            Connection = "AppSettings:EmailNotificationServiceBus",
             AutoCompleteMessages = false)]
         ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)

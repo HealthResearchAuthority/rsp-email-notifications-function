@@ -86,15 +86,12 @@ public static class Program
         {
             var configuration = sp.GetRequiredService<IConfiguration>();
 
-            var connectionString =
-                configuration["ConnectionStrings:EmailNotificationServiceBus"] ??
-                configuration["Values:EmailNotificationServiceBus"] ??
-                configuration["EmailNotificationServiceBus"];
+            var connectionString =  configuration["AppSettings:EmailNotificationServiceBus"];
 
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 throw new InvalidOperationException(
-                    "Missing ConnectionStrings:EmailNotificationServiceBus configuration.");
+                    "Missing AppSettings:EmailNotificationServiceBus configuration.");
             }
 
             return new ServiceBusClient(connectionString);
