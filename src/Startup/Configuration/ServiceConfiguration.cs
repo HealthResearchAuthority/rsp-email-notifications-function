@@ -7,7 +7,7 @@ public static class ServicesConfiguration
         services.AddTransient<INotifyService, NotifyService>();
 
         services.AddTransient<IAsyncNotificationClient, NotificationClient>(_ =>
-            new NotificationClient(appSettings.GovNotifyApiKey));
+            new NotificationClient(appSettings.GovUkNotifyApiKey));
 
         services.AddScoped<IEmailHandlerRouter, EmailHandlerRouter>();
         services.AddScoped<IUserEmailResolver, UserEmailResolver>();

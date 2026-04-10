@@ -7,9 +7,7 @@ public class AppSettings
     public AzureAppConfiguration AzureAppConfiguration { get; set; } = null!;
     public MicrosoftEntra MicrosoftEntra { get; set; } = null!;
 
-    public string GovNotifyApiKey { get; set; } = null!;
-    public string QueueName { get; set; } = null!;
-
+    public string GovUkNotifyApiKey { get; set; } = null!;
     /// <summary>
     ///     Gets or sets the URI of the ApplicationsService microservice.
     /// </summary>

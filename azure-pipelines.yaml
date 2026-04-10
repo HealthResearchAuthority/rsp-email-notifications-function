@@ -78,8 +78,13 @@ variables:
           "slotSetting": false
         },
         {
-          "name": "AppSettings__QueueName",
+          "name": "AppSettings__EmailNotificationQueueName",
           "value": "$(EmailNotificationQueueName)",
+          "slotSetting": false
+        },
+        {
+          "name": "AppSettings__EmailNotificationDeadletterQueueName",
+          "value": "$(EmailNotificationDeadletterQueueName)",
           "slotSetting": false
         }
       ]

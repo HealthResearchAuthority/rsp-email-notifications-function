@@ -9,7 +9,10 @@ public class NotifyFunction(
     // and is triggered when a new message is added to the queue
     [Function(nameof(NotifyFunction))]
     public async Task Run(
-        [ServiceBusTrigger("%QueueName%", Connection = "EmailNotificationServiceBus", AutoCompleteMessages = false)]
+        [ServiceBusTrigger(
+            "%AppSettings:EmailNotificationQueueName%",
+            Connection = "AppSettings:EmailNotificationServiceBus",
+            AutoCompleteMessages = false)]
         ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
     {
