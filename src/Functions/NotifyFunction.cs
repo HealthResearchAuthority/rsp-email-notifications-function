@@ -1,70 +1,79 @@
 namespace Rsp.NotifyFunction.Functions;
 
-public class EmailNotificationFunction(
-    ILogger<EmailNotificationFunction> logger,
-    IEmailHandlerRouter router)
+public class NotifyFunction(
+    ILogger<NotifyFunction> logger,
+    IEmailHandlerRouter router,
+    IEmailNotificationService emailNotificationService)
 {
     // Function that listens to the azure service bus queue for new messages
     // and is triggered when a new message is added to the queue
-    [Function(nameof(EmailNotificationFunction))]
-    public async Task Notify
-    (
-        [ServiceBusTrigger("%QueueName%", Connection = "EmailNotificationsConnection")]
+    [Function(nameof(NotifyFunction))]
+    public async Task Run(
+        [ServiceBusTrigger("%QueueName%", Connection = "EmailNotificationServiceBus", AutoCompleteMessages = false)]
         ServiceBusReceivedMessage message,
-        ServiceBusMessageActions messageActions
-    )
+        ServiceBusMessageActions messageActions)
     {
-        // convert the received message into json string
-        var notificationMessage = message.Body.ToString();
-        var envelope = JsonSerializer.Deserialize<EmailEnvelope>(notificationMessage);
+        var body = message.Body.ToString();
+        EmailEnvelope? envelope = null;
 
-        if (envelope == null)
+        try
         {
-            logger.LogAsWarning("Message could not be deserialized.");
-            return;
+            envelope = JsonSerializer.Deserialize<EmailEnvelope>(body);
+
+            if (envelope == null)
+            {
+                logger.LogWarning("Message could not be deserialized. MessageId: {MessageId}", message.MessageId);
+
+                await messageActions.DeadLetterMessageAsync(
+                    message,
+                    deadLetterReason: "DeserializationFailed",
+                    deadLetterErrorDescription: "Message body could not be deserialized to EmailEnvelope.");
+
+                return;
+            }
+
+            await router.Route(envelope);
+
+            logger.LogInformation(
+                "Email successfully sent. MessageId: {MessageId}, EventType: {EventType}, TemplateId: {TemplateId}",
+                message.MessageId,
+                envelope.EventType,
+                envelope.EmailTemplateId);
+
+            await messageActions.CompleteMessageAsync(message);
+
+            await emailNotificationService.Success(new EmailNotificationDto
+            {
+                Id = envelope.EmailNotificationId,
+                Status = EmailNotificationStatuses.Sent,
+                SentAt = DateTime.Now
+            });
         }
-
-        logger.LogAsInformation("Sending email...");
-
-        // send the email via the Gov UK notification service
-        await router.Route(envelope);
-
-        var parameters =
-            $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
-
-        // log the details of the email that was sent, including the event data, event type and email template id
-        logger.LogAsInformation(parameters: parameters, "Email successfully sent.");
-    }
-
-    // This is an additional HTTP triggered function that can
-    // be used for manual testing and sending of email notifications.
-    [Function("NotifyFunctionManual")]
-    public async Task NotifyManual(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "notify")]
-        HttpRequestData req,
-        ServiceBusReceivedMessage message)
-    {
-        logger.LogInformation("Received HTTP notification request.");
-
-        // convert the received message into json string
-        var body = await new StreamReader(req.Body).ReadToEndAsync();
-        var envelope = JsonSerializer.Deserialize<EmailEnvelope>(body);
-
-        if (envelope == null)
+        catch (NotifyClientException ex)
         {
-            logger.LogAsWarning("Message could not be deserialized.");
-            return;
+            logger.LogError(
+                ex,
+                "Notify failed. Moving message to DLQ. MessageId: {MessageId}, EventType: {EventType}",
+                message.MessageId,
+                envelope?.EventType);
+
+            await messageActions.DeadLetterMessageAsync(
+                message,
+                deadLetterReason: "NotifySendFailed",
+                deadLetterErrorDescription: ex.Message);
         }
+        catch (Exception ex)
+        {
+            logger.LogError(
+                ex,
+                "Unexpected failure. Moving message to DLQ. MessageId: {MessageId}, EventType: {EventType}",
+                message.MessageId,
+                envelope?.EventType);
 
-        logger.LogAsInformation("Sending email...");
-
-        // send the email via the Gov UK notification service
-        await router.Route(envelope);
-
-        var parameters =
-            $"EventData: {envelope.Data}, EventType: {envelope.EventType}, TemplateId: {envelope.EmailTemplateId}";
-
-        // log the details of the email that was sent
-        logger.LogAsInformation(parameters: parameters, "Email successfully sent.");
+            await messageActions.DeadLetterMessageAsync(
+                message,
+                deadLetterReason: "UnhandledException",
+                deadLetterErrorDescription: ex.Message);
+        }
     }
 }

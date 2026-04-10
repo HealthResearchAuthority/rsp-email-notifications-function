@@ -6,6 +6,7 @@
 /// </summary>
 public sealed class EmailEnvelope
 {
+    public Guid EmailNotificationId { get; set; }
     public string EmailTemplateId { get; set; } = null!;
     public string EventType { get; init; } = default!;
     public IEnumerable<string> UserIdsOrEmails { get; set; } = [];

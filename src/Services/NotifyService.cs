@@ -17,9 +17,9 @@ public class NotifyService(IAsyncNotificationClient notifyClient) : INotifyServi
     /// </summary>
     /// <param name="emailNotificationMessage"></param>
     /// <returns></returns>
-    public Task<EmailNotificationResponse> SendEmail(EmailNotificationMessage emailNotificationMessage)
+    public async Task<EmailNotificationResponse> SendEmail(EmailNotificationMessage emailNotificationMessage)
     {
-        return notifyClient
+        return await notifyClient
             .SendEmailAsync(emailNotificationMessage.RecipientAddress,
                 emailNotificationMessage.EmailTemplateId,
                 emailNotificationMessage.Data.ToDictionary());

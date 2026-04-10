@@ -67,6 +67,7 @@ public class ModificationOutcomeHandler(
         // ------------------------------------------------------------
         foreach (var message in emails.Select(email => new EmailNotificationMessage
                  {
+                     EmailNotificationId = envelope.EmailNotificationId,
                      EmailTemplateId = envelope.EmailTemplateId,
                      EventType = envelope.EventType,
                      RecipientAddress = email,

@@ -6,6 +6,7 @@
 /// </summary>
 public class EmailNotificationMessage
 {
+    public Guid EmailNotificationId { get; set; }
     public string? EventType { get; set; } = null!;
     public string EmailTemplateId { get; set; } = null!;
 

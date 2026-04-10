@@ -77,8 +77,28 @@ public static class Program
         builder.Services.AddMemoryCache();
         builder.Services.AddServices(appSettings);
         builder.Services.AddHttpContextAccessor();
+        builder.Services.AddTransient<ApplicationsServiceAuthHeadersHandler>();
         builder.Services.AddTransient<UserServiceAuthHeadersHandler>();
         builder.Services.AddHttpClients(appSettings);
+
+        // Register ServiceBusClient
+        builder.Services.AddSingleton<ServiceBusClient>(sp =>
+        {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+
+            var connectionString =
+                configuration["ConnectionStrings:EmailNotificationServiceBus"] ??
+                configuration["Values:EmailNotificationServiceBus"] ??
+                configuration["EmailNotificationServiceBus"];
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new InvalidOperationException(
+                    "Missing ConnectionStrings:EmailNotificationServiceBus configuration.");
+            }
+
+            return new ServiceBusClient(connectionString);
+        });
 
         // Creating a feature manager without the use of DI. Injecting IFeatureManager via DI is
         // appropriate in constructor methods. At the startup, it's not recommended to call
